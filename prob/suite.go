@@ -43,3 +43,14 @@ func (s *Suite) Update(obs string) {
 	}
 	s.Normalize()
 }
+
+// MultiUpdate ...
+func (s *Suite) MultiUpdate(obs []string) {
+	for _, ob := range obs {
+		for hypoName := range s.prob {
+			like := s.like(ob, hypoName)
+			s.Mult(hypoName, like)
+		}
+	}
+	s.Normalize()
+}
