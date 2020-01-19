@@ -72,12 +72,65 @@ func CookieEncapsulated() {
 	}
 
 	c := newCookieProblem(mixes)
-	c.update("vanilla")
-	c.update("chocolate")
-	c.update("vanilla")
-	c.update("chocolate")
-	c.update("chocolate")
-	c.update("vanilla")
+
+	observations := []string{
+		"vanilla",
+		"chocolate",
+		"vanilla",
+		"chocolate",
+		"chocolate",
+		"chocolate",
+		"vanilla",
+		"chocolate",
+	}
+	for _, obs := range observations {
+		c.update(obs)
+	}
+
+	fmt.Println("posterior")
+	c.Print()
+}
+
+// CookieSuite ...
+func CookieSuite() {
+
+	bowl1 := prob.NewHypothesis("Bowl 1", 0.5)
+	bowl2 := prob.NewHypothesis("Bowl 2", 0.5)
+	hypos := []*prob.Hypothesis{bowl1, bowl2}
+
+	mixes := map[string]bowl{
+		"Bowl 1": bowl{"chocolate": 0.25, "vanilla": 0.75},
+		"Bowl 2": bowl{"chocolate": 0.5, "vanilla": 0.5},
+	}
+
+	likelihood := func(obs string, hypoName string) float64 {
+		hypoMix, ok := mixes[hypoName]
+		if !ok {
+			return 0
+		}
+
+		like, ok := hypoMix[obs]
+		if !ok {
+			return 0
+		}
+		return like
+
+	}
+
+	c := prob.NewSuite(hypos, likelihood)
+	observations := []string{
+		"vanilla",
+		"chocolate",
+		"vanilla",
+		"chocolate",
+		"chocolate",
+		"chocolate",
+		"vanilla",
+		"chocolate",
+	}
+	for _, obs := range observations {
+		c.Update(obs)
+	}
 
 	fmt.Println("posterior")
 	c.Print()

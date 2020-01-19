@@ -12,4 +12,7 @@ func main() {
 
 	fmt.Println("encapsulated calculation:")
 	exercises.CookieEncapsulated()
+
+	fmt.Println("suite calculation:")
+	exercises.CookieSuite()
 }
