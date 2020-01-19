@@ -7,9 +7,11 @@ import (
 )
 
 func main() {
-	fmt.Println("manual calculation:")
+	fmt.Println("Cookie: manual calculation:")
 	exercises.CookieManual()
-
-	fmt.Println("suite calculation:")
+	fmt.Println("Cookie: suite calculation:")
 	exercises.CookieSuite()
+
+	fmt.Println("Monty Hall:")
+	exercises.MontyHall()
 }
