@@ -44,8 +44,8 @@ func CookieSuite() {
 	likelihood := func(obs string, hypoName string) float64 {
 
 		mixes := map[string]bowl{
-			"Bowl 1": bowl{"chocolate": 0.25, "vanilla": 0.75},
-			"Bowl 2": bowl{"chocolate": 0.5, "vanilla": 0.5},
+			bowl1.Name: bowl{"chocolate": 0.25, "vanilla": 0.75},
+			bowl2.Name: bowl{"chocolate": 0.5, "vanilla": 0.5},
 		}
 
 		hypoMix, ok := mixes[hypoName]
@@ -72,9 +72,7 @@ func CookieSuite() {
 		"vanilla",
 		"chocolate",
 	}
-	for _, obs := range observations {
-		c.Update(obs)
-	}
+	c.MultiUpdate(observations)
 
 	fmt.Println("posterior")
 	c.Print()
