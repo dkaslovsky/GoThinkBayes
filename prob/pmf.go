@@ -23,6 +23,13 @@ func (p *Pmf) Set(elem string, val float64) {
 
 // Normalize ...
 func (p *Pmf) Normalize() {
+	if p.sum == 0 {
+		for elem := range p.prob {
+			p.prob[elem] = 0
+		}
+		return
+	}
+
 	for elem := range p.prob {
 		p.prob[elem] /= p.sum
 	}
@@ -30,20 +37,24 @@ func (p *Pmf) Normalize() {
 }
 
 // Prob ...
-func (p *Pmf) Prob(elem string) (float64, bool) {
+func (p *Pmf) Prob(elem string) float64 {
 	val, ok := p.prob[elem]
-	return val, ok
+	if !ok {
+		return 0
+	}
+	return val
 }
 
 // Mult ...
-func (p *Pmf) Mult(elem string, multVal float64) error {
-	curVal, ok := p.Prob(elem)
+func (p *Pmf) Mult(elem string, multVal float64) {
+	curVal, ok := p.prob[elem]
 	if !ok {
-		return fmt.Errorf("%v does not exist", elem)
+		// TODO: log a warning, print for now
+		fmt.Printf("Attempting to modify nonexisting element [%s]\n", elem)
+		return
 	}
 	p.prob[elem] *= multVal
 	p.sum += curVal * (multVal - 1) // maintain sum by subtracting curVal and adding curVal*multVal
-	return nil
 }
 
 // Print is for debug - DELETE ME!
