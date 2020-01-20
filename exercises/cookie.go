@@ -44,12 +44,12 @@ func (o cookieObservation) GetLikelihood(hypoName string) float64 {
 		bowl2.Name: bowl{"chocolate": 0.5, "vanilla": 0.5},
 	}
 
-	hypoMix, ok := mixes[hypoName]
+	bowlMix, ok := mixes[hypoName]
 	if !ok {
 		return 0
 	}
 
-	like, ok := hypoMix[o.Name]
+	like, ok := bowlMix[o.Name]
 	if !ok {
 		return 0
 	}
@@ -69,7 +69,7 @@ func CookieSuite() {
 		cookieObservation{Name: "vanilla"},
 		cookieObservation{Name: "chocolate"},
 	}
-	//c.MultiUpdate(observations)
+
 	for _, obs := range observations {
 		c.Update(obs)
 	}

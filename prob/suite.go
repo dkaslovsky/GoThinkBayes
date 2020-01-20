@@ -47,12 +47,12 @@ func (s *Suite) Update(obs observation) {
 }
 
 // MultiUpdate ...
-func (s *Suite) MultiUpdate(obs []observation) {
-	for _, ob := range obs {
-		for hypoName := range s.prob {
-			like := ob.GetLikelihood(hypoName)
-			s.Mult(hypoName, like)
-		}
-	}
-	s.Normalize()
-}
+// func (s *Suite) MultiUpdate(obs ...observation) {
+// 	for _, ob := range obs {
+// 		for hypoName := range s.prob {
+// 			like := ob.GetLikelihood(hypoName)
+// 			s.Mult(hypoName, like)
+// 		}
+// 	}
+// 	s.Normalize()
+// }
