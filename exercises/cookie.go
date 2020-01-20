@@ -4,6 +4,7 @@ import (
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
 
+// The Cookie Problem:
 // Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies.
 // Bowl 2 contains 20 of each.
 // Choose one of the bowls at random and select a cookie at random. The cookie is vanilla.
@@ -11,7 +12,7 @@ import (
 
 type bowl map[string]float64
 
-// CookieManual ...
+// CookieManual computes the probability by manually multiplying the priors by the likelihoods
 func CookieManual() {
 
 	// prior distribution
@@ -29,7 +30,7 @@ func CookieManual() {
 	p.Print()
 }
 
-// CookieSuite ...
+// CookieSuite computes the probability (after many other observations) using a suite of hypotheses
 func CookieSuite() {
 
 	// prior distribution (uniform) for hypotheses
