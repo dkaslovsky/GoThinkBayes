@@ -30,46 +30,48 @@ func CookieManual() {
 	p.Print()
 }
 
+// prior distribution (uniform) for hypotheses
+var bowl1 = prob.NewHypothesis("Bowl 1", 0.5)
+var bowl2 = prob.NewHypothesis("Bowl 2", 0.5)
+
+type cookieObservation struct {
+	Name string
+}
+
+func (o cookieObservation) GetLikelihood(hypoName string) float64 {
+	mixes := map[string]bowl{
+		bowl1.Name: bowl{"chocolate": 0.25, "vanilla": 0.75},
+		bowl2.Name: bowl{"chocolate": 0.5, "vanilla": 0.5},
+	}
+
+	hypoMix, ok := mixes[hypoName]
+	if !ok {
+		return 0
+	}
+
+	like, ok := hypoMix[o.Name]
+	if !ok {
+		return 0
+	}
+	return like
+}
+
 // CookieSuite computes the probability (after many other observations) using a suite of hypotheses
 func CookieSuite() {
-
-	// prior distribution (uniform) for hypotheses
-	bowl1 := prob.NewHypothesis("Bowl 1", 0.5)
-	bowl2 := prob.NewHypothesis("Bowl 2", 0.5)
-
-	// define likelihoods
-	likelihood := func(obs string, hypoName string) float64 {
-
-		mixes := map[string]bowl{
-			bowl1.Name: bowl{"chocolate": 0.25, "vanilla": 0.75},
-			bowl2.Name: bowl{"chocolate": 0.5, "vanilla": 0.5},
-		}
-
-		hypoMix, ok := mixes[hypoName]
-		if !ok {
-			return 0
-		}
-
-		like, ok := hypoMix[obs]
-		if !ok {
-			return 0
-		}
-		return like
-
+	c := prob.NewSuite(bowl1, bowl2)
+	observations := []cookieObservation{
+		cookieObservation{Name: "vanilla"},
+		cookieObservation{Name: "chocolate"},
+		cookieObservation{Name: "vanilla"},
+		cookieObservation{Name: "chocolate"},
+		cookieObservation{Name: "chocolate"},
+		cookieObservation{Name: "chocolate"},
+		cookieObservation{Name: "vanilla"},
+		cookieObservation{Name: "chocolate"},
 	}
-
-	c := prob.NewSuite(likelihood, bowl1, bowl2)
-	observations := []string{
-		"vanilla",
-		"chocolate",
-		"vanilla",
-		"chocolate",
-		"chocolate",
-		"chocolate",
-		"vanilla",
-		"chocolate",
+	//c.MultiUpdate(observations)
+	for _, obs := range observations {
+		c.Update(obs)
 	}
-	c.MultiUpdate(observations)
-
 	c.Print()
 }

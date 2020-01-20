@@ -4,6 +4,7 @@ import (
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
 
+// prior distribution
 var doorA = prob.NewHypothesis("door A", 1./3)
 var doorB = prob.NewHypothesis("door B", 1./3)
 var doorC = prob.NewHypothesis("door C", 1./3)
@@ -12,13 +13,19 @@ type doorObservation struct {
 	Name string
 }
 
-func (o doorObservation) getLikelihood(hypoName string) float64 {
+// Getlikelihood is the likelihood function for "Monty chooses door B and there is no car there"
+// the hypothesis is the door the car is behind
+func (o doorObservation) GetLikelihood(hypoName string) float64 {
 	if hypoName == o.Name {
+		// we only observe a door that Monty shows which cannot contain the car
 		return 0
 	}
 	if hypoName == doorA.Name {
+		// under the hypothesis that the car is behind A, Monty can choose B or C
+		// and the probability that the car is not behind B is 1
 		return 0.5
 	}
+	// if the car is behind door C, Monty must open door B and the car cannot not be there
 	return 1
 }
 
@@ -28,7 +35,7 @@ func (o doorObservation) getLikelihood(hypoName string) float64 {
 func MontyHall() {
 	monty := prob.NewSuite(doorA, doorB, doorC)
 
-	obs := doorObservation{"door B"}
+	obs := doorObservation{Name: "door B"}
 	monty.Update(obs)
 
 	monty.Print()
