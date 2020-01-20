@@ -11,7 +11,6 @@ func MontyHall() {
 	doorA := prob.NewHypothesis("door A", 1./3)
 	doorB := prob.NewHypothesis("door B", 1./3)
 	doorC := prob.NewHypothesis("door C", 1./3)
-	hypos := []*prob.Hypothesis{doorA, doorB, doorC}
 
 	likelihood := func(obs string, hypoName string) float64 {
 		if hypoName == obs {
@@ -23,7 +22,7 @@ func MontyHall() {
 		return 1
 	}
 
-	monty := prob.NewSuite(hypos, likelihood)
+	monty := prob.NewSuite(likelihood, doorA, doorB, doorC)
 	monty.Update(doorB.Name)
 
 	fmt.Println("posterior")

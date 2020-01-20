@@ -38,7 +38,6 @@ func CookieSuite() {
 	// prior distribution (uniform) for hypotheses
 	bowl1 := prob.NewHypothesis("Bowl 1", 0.5)
 	bowl2 := prob.NewHypothesis("Bowl 2", 0.5)
-	hypos := []*prob.Hypothesis{bowl1, bowl2}
 
 	// define likelihoods
 	likelihood := func(obs string, hypoName string) float64 {
@@ -61,7 +60,7 @@ func CookieSuite() {
 
 	}
 
-	c := prob.NewSuite(hypos, likelihood)
+	c := prob.NewSuite(likelihood, bowl1, bowl2)
 	observations := []string{
 		"vanilla",
 		"chocolate",

@@ -23,7 +23,7 @@ type Suite struct {
 }
 
 // NewSuite ...
-func NewSuite(hypos []*Hypothesis, like likelihood) *Suite {
+func NewSuite(like likelihood, hypos ...*Hypothesis) *Suite {
 	s := &Suite{
 		Pmf:  NewPmf(),
 		like: like,
