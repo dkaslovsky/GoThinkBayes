@@ -14,19 +14,21 @@ func NewHypothesis(name string, prob float64) *Hypothesis {
 	}
 }
 
-type likelihood func(obs string, hypoName string) float64
+type Observation interface {
+	getLikelihood(string) float64
+}
 
 // Suite ...
 type Suite struct {
 	*Pmf
-	like likelihood
+	//like likelihood
 }
 
 // NewSuite ...
-func NewSuite(like likelihood, hypos ...*Hypothesis) *Suite {
+func NewSuite(hypos ...*Hypothesis) *Suite {
 	s := &Suite{
-		Pmf:  NewPmf(),
-		like: like,
+		Pmf: NewPmf(),
+		//like: like,
 	}
 	for _, hypo := range hypos {
 		s.Set(hypo.Name, hypo.Prob)
@@ -36,19 +38,19 @@ func NewSuite(like likelihood, hypos ...*Hypothesis) *Suite {
 }
 
 // Update ...
-func (s *Suite) Update(obs string) {
+func (s *Suite) Update(obs Observation) {
 	for hypoName := range s.prob {
-		like := s.like(obs, hypoName)
+		like := obs.getLikelihood(hypoName)
 		s.Mult(hypoName, like)
 	}
 	s.Normalize()
 }
 
 // MultiUpdate ...
-func (s *Suite) MultiUpdate(obs []string) {
+func (s *Suite) MultiUpdate(obs []Observation) {
 	for _, ob := range obs {
 		for hypoName := range s.prob {
-			like := s.like(ob, hypoName)
+			like := ob.getLikelihood(hypoName)
 			s.Mult(hypoName, like)
 		}
 	}
