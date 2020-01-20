@@ -14,8 +14,8 @@ func NewHypothesis(name string, prob float64) *Hypothesis {
 	}
 }
 
-type Observation interface {
-	getLikelihood(string) float64
+type observation interface {
+	GetLikelihood(string) float64
 }
 
 // Suite ...
@@ -38,19 +38,19 @@ func NewSuite(hypos ...*Hypothesis) *Suite {
 }
 
 // Update ...
-func (s *Suite) Update(obs Observation) {
+func (s *Suite) Update(obs observation) {
 	for hypoName := range s.prob {
-		like := obs.getLikelihood(hypoName)
+		like := obs.GetLikelihood(hypoName)
 		s.Mult(hypoName, like)
 	}
 	s.Normalize()
 }
 
 // MultiUpdate ...
-func (s *Suite) MultiUpdate(obs []Observation) {
+func (s *Suite) MultiUpdate(obs []observation) {
 	for _, ob := range obs {
 		for hypoName := range s.prob {
-			like := ob.getLikelihood(hypoName)
+			like := ob.GetLikelihood(hypoName)
 			s.Mult(hypoName, like)
 		}
 	}
