@@ -57,12 +57,14 @@ func (p *Pmf) Mult(elem string, multVal float64) {
 	p.sum += curVal * (multVal - 1) // maintain sum by subtracting curVal and adding curVal*multVal
 }
 
-// Print is for debug - DELETE ME!
+// Print ...
 func (p *Pmf) Print() {
-	fmt.Println("----------")
+	border := "----------"
+	fmt.Println(border)
 	for elem, prob := range p.prob {
 		fmt.Printf("%s: %0.2f\n", elem, prob)
 	}
 	fmt.Printf("(sum: %0.2f)\n", p.sum)
+	fmt.Println(border)
 	fmt.Println()
 }

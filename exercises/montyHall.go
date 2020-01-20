@@ -1,8 +1,6 @@
 package exercises
 
 import (
-	"fmt"
-
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
 
@@ -25,6 +23,5 @@ func MontyHall() {
 	monty := prob.NewSuite(likelihood, doorA, doorB, doorC)
 	monty.Update(doorB.Name)
 
-	fmt.Println("posterior")
 	monty.Print()
 }

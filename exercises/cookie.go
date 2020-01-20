@@ -1,8 +1,6 @@
 package exercises
 
 import (
-	"fmt"
-
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
 
@@ -28,7 +26,6 @@ func CookieManual() {
 
 	// Renormalize to obtain the posterior distribution
 	p.Normalize()
-	fmt.Println("posterior")
 	p.Print()
 }
 
@@ -73,6 +70,5 @@ func CookieSuite() {
 	}
 	c.MultiUpdate(observations)
 
-	fmt.Println("posterior")
 	c.Print()
 }
