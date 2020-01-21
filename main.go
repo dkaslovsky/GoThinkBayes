@@ -17,4 +17,7 @@ func main() {
 
 	fmt.Println("M&Ms:")
 	exercises.MMs()
+
+	fmt.Println("Dice:")
+	exercises.Dice()
 }
