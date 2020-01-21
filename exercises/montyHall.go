@@ -17,12 +17,12 @@ var (
 
 // an observation is the name of a revealed door
 type doorObservation struct {
-	Name string
+	name string
 }
 
 // Getlikelihood is the likelihood function for "Monty chooses door B and there is no car there"
 func (o doorObservation) GetLikelihood(hypoName string) float64 {
-	if hypoName == o.Name {
+	if hypoName == o.name {
 		// we only observe a door that Monty shows which cannot contain the car
 		return 0
 	}
@@ -39,7 +39,7 @@ func (o doorObservation) GetLikelihood(hypoName string) float64 {
 func MontyHall() {
 	monty := prob.NewSuite(doorA, doorB, doorC)
 
-	obs := doorObservation{Name: "door B"}
+	obs := doorObservation{name: "door B"}
 	monty.Update(obs)
 
 	monty.Print()

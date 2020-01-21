@@ -32,23 +32,23 @@ var (
 )
 
 type mmHypothesis struct {
-	Hypo *prob.PmfElement
-	Bags map[string]mmBag
+	hypo *prob.PmfElement
+	bags map[string]mmBag
 }
 
 var (
 	// hypothesis A: bag1 is from 1994, bag 2 is from 1996
 	hypoA = mmHypothesis{
-		Hypo: prob.NewPmfElement("hypo A", 1),
-		Bags: map[string]mmBag{
+		hypo: prob.NewPmfElement("hypo A", 1),
+		bags: map[string]mmBag{
 			"bag 1": mmBag94,
 			"bag 2": mmBag96,
 		},
 	}
 	// hypothesis B: bag1 is from 1996, bag 2 is from 1994
 	hypoB = mmHypothesis{
-		Hypo: prob.NewPmfElement("hypo B", 1),
-		Bags: map[string]mmBag{
+		hypo: prob.NewPmfElement("hypo B", 1),
+		bags: map[string]mmBag{
 			"bag 1": mmBag96,
 			"bag 2": mmBag94,
 		},
@@ -56,14 +56,14 @@ var (
 )
 
 var mmHypos = map[string]mmHypothesis{
-	hypoA.Hypo.Name: hypoA,
-	hypoB.Hypo.Name: hypoB,
+	hypoA.hypo.Name: hypoA,
+	hypoB.hypo.Name: hypoB,
 }
 
 // an observation corresponds to a color and the bag from which it was drawn
 type mmObservation struct {
-	Bag   string
-	Color string
+	bag   string
+	color string
 }
 
 // Getlikelihood is the likelihood function for the M&M problem
@@ -73,12 +73,12 @@ func (o mmObservation) GetLikelihood(hypoName string) float64 {
 		return 0
 	}
 
-	bag, ok := hypo.Bags[o.Bag]
+	bag, ok := hypo.bags[o.bag]
 	if !ok {
 		return 0
 	}
 
-	like, ok := bag[o.Color]
+	like, ok := bag[o.color]
 	if !ok {
 		return 0
 	}
@@ -87,11 +87,11 @@ func (o mmObservation) GetLikelihood(hypoName string) float64 {
 
 // MMs runs the M&M problem
 func MMs() {
-	m := prob.NewSuite(hypoA.Hypo, hypoB.Hypo)
+	m := prob.NewSuite(hypoA.hypo, hypoB.hypo)
 
 	obs := []mmObservation{
-		mmObservation{Bag: "bag 1", Color: "yellow"},
-		mmObservation{Bag: "bag 2", Color: "green"},
+		mmObservation{bag: "bag 1", color: "yellow"},
+		mmObservation{bag: "bag 2", color: "green"},
 	}
 	for _, ob := range obs {
 		m.Update(ob)

@@ -13,23 +13,23 @@ import (
 type cookieBowl map[string]float64
 
 type cookieHypothesis struct {
-	Hypo *prob.PmfElement
-	Bowl cookieBowl
+	hypo *prob.PmfElement
+	bowl cookieBowl
 }
 
 // prior distribution (uniform) for hypotheses
 // define cookie bowls by their distribution of flavors
 var (
 	bowl1 = cookieHypothesis{
-		Hypo: prob.NewPmfElement("Bowl 1", 1),
-		Bowl: cookieBowl{
+		hypo: prob.NewPmfElement("Bowl 1", 1),
+		bowl: cookieBowl{
 			"chocolate": 0.25,
 			"vanilla":   0.75,
 		},
 	}
 	bowl2 = cookieHypothesis{
-		Hypo: prob.NewPmfElement("Bowl 2", 1),
-		Bowl: cookieBowl{
+		hypo: prob.NewPmfElement("Bowl 2", 1),
+		bowl: cookieBowl{
 			"chocolate": 0.5,
 			"vanilla":   0.5,
 		},
@@ -37,13 +37,13 @@ var (
 )
 
 var cookieHypos = map[string]cookieHypothesis{
-	bowl1.Hypo.Name: bowl1,
-	bowl2.Hypo.Name: bowl2,
+	bowl1.hypo.Name: bowl1,
+	bowl2.hypo.Name: bowl2,
 }
 
 // an observation is the name (flavor) of cookie observed
 type cookieObservation struct {
-	Name string
+	name string
 }
 
 // Getlikelihood is the likelihood function for the Cookie problem
@@ -53,7 +53,7 @@ func (o cookieObservation) GetLikelihood(hypoName string) float64 {
 		return 0
 	}
 
-	like, ok := hypo.Bowl[o.Name]
+	like, ok := hypo.bowl[o.name]
 	if !ok {
 		return 0
 	}
@@ -62,16 +62,16 @@ func (o cookieObservation) GetLikelihood(hypoName string) float64 {
 
 // Cookie computes the probability (after many other observations) using a suite of hypotheses
 func Cookie() {
-	c := prob.NewSuite(bowl1.Hypo, bowl2.Hypo)
+	c := prob.NewSuite(bowl1.hypo, bowl2.hypo)
 	observations := []cookieObservation{
-		cookieObservation{Name: "vanilla"},
-		cookieObservation{Name: "chocolate"},
-		cookieObservation{Name: "vanilla"},
-		cookieObservation{Name: "chocolate"},
-		cookieObservation{Name: "chocolate"},
-		cookieObservation{Name: "chocolate"},
-		cookieObservation{Name: "vanilla"},
-		cookieObservation{Name: "chocolate"},
+		cookieObservation{name: "vanilla"},
+		cookieObservation{name: "chocolate"},
+		cookieObservation{name: "vanilla"},
+		cookieObservation{name: "chocolate"},
+		cookieObservation{name: "chocolate"},
+		cookieObservation{name: "chocolate"},
+		cookieObservation{name: "vanilla"},
+		cookieObservation{name: "chocolate"},
 	}
 
 	for _, obs := range observations {
