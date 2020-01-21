@@ -9,9 +9,11 @@ import (
 // Should we stick with door A or switch to door C?
 
 // prior distribution for location of car (uniform)
-var doorA = prob.NewPmfElement("door A", 1)
-var doorB = prob.NewPmfElement("door B", 1)
-var doorC = prob.NewPmfElement("door C", 1)
+var (
+	doorA = prob.NewPmfElement("door A", 1)
+	doorB = prob.NewPmfElement("door B", 1)
+	doorC = prob.NewPmfElement("door C", 1)
+)
 
 // an observation is the name of a revealed door
 type doorObservation struct {
@@ -19,7 +21,6 @@ type doorObservation struct {
 }
 
 // Getlikelihood is the likelihood function for "Monty chooses door B and there is no car there"
-// the hypothesis is the door the car is behind
 func (o doorObservation) GetLikelihood(hypoName string) float64 {
 	if hypoName == o.Name {
 		// we only observe a door that Monty shows which cannot contain the car
