@@ -4,11 +4,16 @@ import (
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
 
-// prior distribution
-var doorA = prob.NewHypothesis("door A", 1./3)
-var doorB = prob.NewHypothesis("door B", 1./3)
-var doorC = prob.NewHypothesis("door C", 1./3)
+// Monty Hall problem:
+// We pick door A, then Monty picks to open door B showing no car
+// Should we stick with door A or switch to door C?
 
+// prior distribution for location of car (uniform)
+var doorA = prob.NewPmfElement("door A", 1)
+var doorB = prob.NewPmfElement("door B", 1)
+var doorC = prob.NewPmfElement("door C", 1)
+
+// an observation is the name of a revealed door
 type doorObservation struct {
 	Name string
 }
@@ -29,9 +34,7 @@ func (o doorObservation) GetLikelihood(hypoName string) float64 {
 	return 1
 }
 
-// MontyHall runs the Monty Hall problem:
-// We pick door A, then Monty picks to open door B showing no car
-// Should we stick with door A or switch to door C?
+// MontyHall runs the Monty Hall problem
 func MontyHall() {
 	monty := prob.NewSuite(doorA, doorB, doorC)
 

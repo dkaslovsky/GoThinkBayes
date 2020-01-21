@@ -4,16 +4,14 @@ import (
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
 
-// The Cookie Problem:
+// Cookie Problem:
 // Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies.
 // Bowl 2 contains 20 of each.
 // Choose one of the bowls at random and select a cookie at random. The cookie is vanilla.
 // What is the probability that it came from Bowl 1?
 
-type bowl map[string]float64
-
-// CookieManual computes the probability by manually multiplying the priors by the likelihoods
-func CookieManual() {
+// CookieByHand computes the probability by manually multiplying the priors by the likelihoods
+func CookieByHand() {
 
 	// prior distribution
 	p := prob.NewPmf()
@@ -31,20 +29,25 @@ func CookieManual() {
 }
 
 // prior distribution (uniform) for hypotheses
-var bowl1 = prob.NewHypothesis("Bowl 1", 0.5)
-var bowl2 = prob.NewHypothesis("Bowl 2", 0.5)
+var bowl1 = prob.NewPmfElement("Bowl 1", 1)
+var bowl2 = prob.NewPmfElement("Bowl 2", 1)
 
+type cookieBowl map[string]float64
+
+// define cookie bowls by their distribution of flavors
+var cookieMixes = map[string]cookieBowl{
+	bowl1.Name: cookieBowl{"chocolate": 0.25, "vanilla": 0.75},
+	bowl2.Name: cookieBowl{"chocolate": 0.5, "vanilla": 0.5},
+}
+
+// an observation is the name (flavor) of cookie observed
 type cookieObservation struct {
 	Name string
 }
 
+// Getlikelihood is the likelihood function for the Cookie problem
 func (o cookieObservation) GetLikelihood(hypoName string) float64 {
-	mixes := map[string]bowl{
-		bowl1.Name: bowl{"chocolate": 0.25, "vanilla": 0.75},
-		bowl2.Name: bowl{"chocolate": 0.5, "vanilla": 0.5},
-	}
-
-	bowlMix, ok := mixes[hypoName]
+	bowlMix, ok := cookieMixes[hypoName]
 	if !ok {
 		return 0
 	}
@@ -56,8 +59,8 @@ func (o cookieObservation) GetLikelihood(hypoName string) float64 {
 	return like
 }
 
-// CookieSuite computes the probability (after many other observations) using a suite of hypotheses
-func CookieSuite() {
+// Cookie computes the probability (after many other observations) using a suite of hypotheses
+func Cookie() {
 	c := prob.NewSuite(bowl1, bowl2)
 	observations := []cookieObservation{
 		cookieObservation{Name: "vanilla"},
@@ -73,5 +76,6 @@ func CookieSuite() {
 	for _, obs := range observations {
 		c.Update(obs)
 	}
+
 	c.Print()
 }
