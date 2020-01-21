@@ -1,34 +1,18 @@
 package prob
 
-// Hypothesis ...
-type Hypothesis struct {
-	Name string
-	Prob float64
-}
-
-// NewHypothesis ...
-func NewHypothesis(name string, prob float64) *Hypothesis {
-	return &Hypothesis{
-		Name: name,
-		Prob: prob,
-	}
-}
-
 type observation interface {
 	GetLikelihood(string) float64
 }
 
-// Suite ...
+// Suite is a suite of hypotheses with associated probabilities (a Pmf)
 type Suite struct {
 	*Pmf
-	//like likelihood
 }
 
-// NewSuite ...
-func NewSuite(hypos ...*Hypothesis) *Suite {
+// NewSuite creates a new Suite
+func NewSuite(hypos ...*PmfElement) *Suite {
 	s := &Suite{
 		Pmf: NewPmf(),
-		//like: like,
 	}
 	for _, hypo := range hypos {
 		s.Set(hypo.Name, hypo.Prob)
@@ -37,7 +21,7 @@ func NewSuite(hypos ...*Hypothesis) *Suite {
 	return s
 }
 
-// Update ...
+// Update updates the probabilities based on an observation
 func (s *Suite) Update(obs observation) {
 	for hypoName := range s.prob {
 		like := obs.GetLikelihood(hypoName)
@@ -45,14 +29,3 @@ func (s *Suite) Update(obs observation) {
 	}
 	s.Normalize()
 }
-
-// MultiUpdate ...
-// func (s *Suite) MultiUpdate(obs ...observation) {
-// 	for _, ob := range obs {
-// 		for hypoName := range s.prob {
-// 			like := ob.GetLikelihood(hypoName)
-// 			s.Mult(hypoName, like)
-// 		}
-// 	}
-// 	s.Normalize()
-// }

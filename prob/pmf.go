@@ -1,27 +1,43 @@
 package prob
 
-import "fmt"
+import (
+	"fmt"
+)
 
-// Pmf ...
+// PmfElement is a discrete element in a PMF
+type PmfElement struct {
+	Name string
+	Prob float64
+}
+
+// NewPmfElement creates a new PmfElement
+func NewPmfElement(name string, prob float64) *PmfElement {
+	return &PmfElement{
+		Name: name,
+		Prob: prob,
+	}
+}
+
+// Pmf is a probability mass function
 type Pmf struct {
 	prob map[string]float64
 	sum  float64
 }
 
-// NewPmf ...
+// NewPmf creates a new Pmf
 func NewPmf() *Pmf {
 	return &Pmf{
 		prob: make(map[string]float64),
 	}
 }
 
-// Set ...
+// Set sets the value of an element
 func (p *Pmf) Set(elem string, val float64) {
 	p.prob[elem] = val
 	p.sum += val
 }
 
-// Normalize ...
+// Normalize normalizes the values of the Pmf to sum to 1
 func (p *Pmf) Normalize() {
 	if p.sum == 0 {
 		for elem := range p.prob {
@@ -36,16 +52,7 @@ func (p *Pmf) Normalize() {
 	p.sum = 1.0
 }
 
-// Prob ...
-func (p *Pmf) Prob(elem string) float64 {
-	val, ok := p.prob[elem]
-	if !ok {
-		return 0
-	}
-	return val
-}
-
-// Mult ...
+// Mult multiplies the probability associated with an element by the specified value
 func (p *Pmf) Mult(elem string, multVal float64) {
 	curVal, ok := p.prob[elem]
 	if !ok {
@@ -57,14 +64,22 @@ func (p *Pmf) Mult(elem string, multVal float64) {
 	p.sum += curVal * (multVal - 1) // maintain sum by subtracting curVal and adding curVal*multVal
 }
 
-// Print ...
+// Prob returns the probability associated with an element
+func (p *Pmf) Prob(elem string) float64 {
+	val, ok := p.prob[elem]
+	if !ok {
+		return 0
+	}
+	return val
+}
+
+// Print prints the Pmf
 func (p *Pmf) Print() {
 	border := "----------"
 	fmt.Println(border)
 	for elem, prob := range p.prob {
 		fmt.Printf("%s: %0.2f\n", elem, prob)
 	}
-	fmt.Printf("(sum: %0.2f)\n", p.sum)
 	fmt.Println(border)
 	fmt.Println()
 }
