@@ -7,8 +7,9 @@ import (
 )
 
 func main() {
-	fmt.Println("Cookie (by hand calculation):")
-	exercises.CookieByHand()
+	fmt.Println("Cookie (manual calculation):")
+	exercises.CookieManual()
+
 	fmt.Println("Cookie:")
 	exercises.Cookie()
 
