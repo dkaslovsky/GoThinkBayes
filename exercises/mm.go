@@ -32,14 +32,14 @@ var (
 )
 
 type mmHypothesis struct {
-	hypo *prob.PmfElement
+	hypo *prob.NamedPmfElement
 	bags map[string]mmBag
 }
 
 var (
 	// hypothesis A: bag1 is from 1994, bag 2 is from 1996
 	hypoA = mmHypothesis{
-		hypo: prob.NewPmfElement("hypo A", 1),
+		hypo: prob.NewNamedPmfElement("hypo A", 1),
 		bags: map[string]mmBag{
 			"bag 1": mmBag94,
 			"bag 2": mmBag96,
@@ -47,7 +47,7 @@ var (
 	}
 	// hypothesis B: bag1 is from 1996, bag 2 is from 1994
 	hypoB = mmHypothesis{
-		hypo: prob.NewPmfElement("hypo B", 1),
+		hypo: prob.NewNamedPmfElement("hypo B", 1),
 		bags: map[string]mmBag{
 			"bag 1": mmBag96,
 			"bag 2": mmBag94,
@@ -87,7 +87,7 @@ func (o mmObservation) GetLikelihood(hypoName string) float64 {
 
 // MMs runs the M&M problem
 func MMs() {
-	m := prob.NewSuite(hypoA.hypo, hypoB.hypo)
+	m := prob.NewNamedSuite(hypoA.hypo, hypoB.hypo)
 
 	obs := []mmObservation{
 		mmObservation{bag: "bag 1", color: "yellow"},

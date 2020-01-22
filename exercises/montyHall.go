@@ -10,9 +10,9 @@ import (
 
 // prior distribution for location of car (uniform)
 var (
-	doorA = prob.NewPmfElement("door A", 1)
-	doorB = prob.NewPmfElement("door B", 1)
-	doorC = prob.NewPmfElement("door C", 1)
+	doorA = prob.NewNamedPmfElement("door A", 1)
+	doorB = prob.NewNamedPmfElement("door B", 1)
+	doorC = prob.NewNamedPmfElement("door C", 1)
 )
 
 // an observation is the name of a revealed door
@@ -37,7 +37,7 @@ func (o doorObservation) GetLikelihood(hypoName string) float64 {
 
 // MontyHall runs the Monty Hall problem
 func MontyHall() {
-	monty := prob.NewSuite(doorA, doorB, doorC)
+	monty := prob.NewNamedSuite(doorA, doorB, doorC)
 
 	obs := doorObservation{name: "door B"}
 	monty.Update(obs)

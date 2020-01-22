@@ -13,7 +13,7 @@ import (
 type cookieBowl map[string]float64
 
 type cookieHypothesis struct {
-	hypo *prob.PmfElement
+	hypo *prob.NamedPmfElement
 	bowl cookieBowl
 }
 
@@ -21,14 +21,14 @@ type cookieHypothesis struct {
 // define cookie bowls by their distribution of flavors
 var (
 	bowl1 = cookieHypothesis{
-		hypo: prob.NewPmfElement("Bowl 1", 1),
+		hypo: prob.NewNamedPmfElement("Bowl 1", 1),
 		bowl: cookieBowl{
 			"chocolate": 0.25,
 			"vanilla":   0.75,
 		},
 	}
 	bowl2 = cookieHypothesis{
-		hypo: prob.NewPmfElement("Bowl 2", 1),
+		hypo: prob.NewNamedPmfElement("Bowl 2", 1),
 		bowl: cookieBowl{
 			"chocolate": 0.5,
 			"vanilla":   0.5,
@@ -62,7 +62,7 @@ func (o cookieObservation) GetLikelihood(hypoName string) float64 {
 
 // Cookie computes the probability (after many other observations) using a suite of hypotheses
 func Cookie() {
-	c := prob.NewSuite(bowl1.hypo, bowl2.hypo)
+	c := prob.NewNamedSuite(bowl1.hypo, bowl2.hypo)
 	observations := []cookieObservation{
 		cookieObservation{name: "vanilla"},
 		cookieObservation{name: "chocolate"},

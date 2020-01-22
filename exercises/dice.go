@@ -9,63 +9,29 @@ import (
 // Select a die at random, roll it, and record the number (potentially repeating the process).
 // What is the probability that I rolled each die?
 
-type diceHypothesis struct {
-	hypo  *prob.PmfElement
-	sides int16
-}
-
-var (
-	sides4 = diceHypothesis{
-		hypo:  prob.NewPmfElement("4-sided", 1),
-		sides: 4,
-	}
-	sides6 = diceHypothesis{
-		hypo:  prob.NewPmfElement("6-sided", 1),
-		sides: 6,
-	}
-	sides8 = diceHypothesis{
-		hypo:  prob.NewPmfElement("8-sided", 1),
-		sides: 8,
-	}
-	sides12 = diceHypothesis{
-		hypo:  prob.NewPmfElement("12-sided", 1),
-		sides: 12,
-	}
-	sides20 = diceHypothesis{
-		hypo:  prob.NewPmfElement("20-sided", 1),
-		sides: 20,
-	}
-)
-
-var diceHypos = map[string]diceHypothesis{
-	sides4.hypo.Name:  sides4,
-	sides6.hypo.Name:  sides6,
-	sides8.hypo.Name:  sides8,
-	sides12.hypo.Name: sides12,
-	sides20.hypo.Name: sides20,
-}
-
-// an observation is the value rolled on the die
+// an observation is the value rolled on a die
 type diceObservation struct {
-	val int16
+	val float64
 }
 
 // Getlikelihood is the likelihood function for the dice problem
-func (o diceObservation) GetLikelihood(hypoName string) float64 {
-	hypo, ok := diceHypos[hypoName]
-	if !ok {
-		return 0
-	}
-	if hypo.sides < o.val {
+func (o diceObservation) GetLikelihood(hypo float64) float64 {
+	if hypo < o.val {
 		// value of the roll is greater than the number of sides on hypothesis die; can't happen
 		return 0
 	}
-	return 1 / float64(hypo.sides)
+	return 1 / hypo
 }
 
 // Dice runs the dice problem
 func Dice() {
-	d := prob.NewSuite(sides4.hypo, sides6.hypo, sides8.hypo, sides12.hypo, sides20.hypo)
+	d := prob.NewNumericSuite(
+		prob.NewNumericPmfElement(4, 1),
+		prob.NewNumericPmfElement(6, 1),
+		prob.NewNumericPmfElement(8, 1),
+		prob.NewNumericPmfElement(12, 1),
+		prob.NewNumericPmfElement(20, 1),
+	)
 
 	obs := []diceObservation{
 		diceObservation{6},
