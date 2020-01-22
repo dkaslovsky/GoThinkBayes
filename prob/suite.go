@@ -15,7 +15,7 @@ func NewSuite(hypos ...*PmfElement) *Suite {
 		Pmf: NewPmf(),
 	}
 	for _, hypo := range hypos {
-		s.Set(hypo.Name, hypo.Prob)
+		s.Set(hypo)
 	}
 	s.Normalize()
 	return s

@@ -32,9 +32,9 @@ func NewPmf() *Pmf {
 }
 
 // Set sets the value of an element
-func (p *Pmf) Set(elem string, val float64) {
-	p.prob[elem] = val
-	p.sum += val
+func (p *Pmf) Set(elem *PmfElement) {
+	p.prob[elem.Name] = elem.Prob
+	p.sum += elem.Prob
 }
 
 // Normalize normalizes the values of the Pmf to sum to 1

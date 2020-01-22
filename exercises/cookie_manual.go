@@ -15,8 +15,8 @@ func CookieManual() {
 
 	// prior distribution
 	p := prob.NewPmf()
-	p.Set("Bowl 1", 0.5)
-	p.Set("Bowl 2", 0.5)
+	p.Set(prob.NewPmfElement("Bowl 1", 0.5))
+	p.Set(prob.NewPmfElement("Bowl 2", 0.5))
 
 	// observe a vanilla cookie:
 	// likelihood of drawing a vanilla cookie from Bowl 1 is 3/4; likelihood for Bowl 2 is 1/2
