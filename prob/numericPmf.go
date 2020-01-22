@@ -57,7 +57,7 @@ func (p *NumericPmf) Mult(elem float64, multVal float64) {
 	curVal, ok := p.prob[elem]
 	if !ok {
 		// TODO: log a warning, print for now
-		fmt.Printf("Attempting to modify nonexisting element [%s]\n", elem)
+		fmt.Printf("Attempting to modify nonexisting element [%v]\n", elem)
 		return
 	}
 	p.prob[elem] *= multVal
