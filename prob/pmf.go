@@ -57,7 +57,7 @@ func (p *Pmf) Mult(elem float64, multVal float64) {
 	curVal, ok := p.prob[elem]
 	if !ok {
 		// TODO: log a warning, print for now
-		fmt.Printf("Attempting to modify nonexisting element [%v]\n", elem)
+		fmt.Printf("attempting to modify nonexisting element [%v]\n", elem)
 		return
 	}
 	p.prob[elem] *= multVal
@@ -82,6 +82,36 @@ func (p *Pmf) Print() {
 	}
 	fmt.Println(border)
 	fmt.Println()
+}
+
+// Mean computes the mean of the Pmf
+func (p *Pmf) Mean() float64 {
+	total := 0.0
+	for elem, prob := range p.prob {
+		total += elem * prob
+	}
+	return total
+}
+
+// Percentile computes the specified percentile of the Pmf
+func (p *Pmf) Percentile(percentile float64) (elem float64, err error) {
+	if percentile < 0 || percentile > 1 {
+		return elem, fmt.Errorf("invalid percentile [%v]", percentile)
+	}
+
+	total := 0.0
+	for _, elem := range sortKeys(p.prob) {
+		total += p.prob[elem]
+		if total >= percentile {
+			return elem, nil
+		}
+	}
+	return elem, fmt.Errorf("unable to compute [%v] percentile", percentile)
+}
+
+// MakeCdf transforms a Pmf to a Cdf
+func (p *Pmf) MakeCdf() *Cdf {
+	return NewCdf(p.prob)
 }
 
 // SuiteObservation is the interface that must be satisfied to update probabilities
@@ -122,13 +152,4 @@ func (s *Suite) MultiUpdate(obs []SuiteObservation) {
 		}
 	}
 	s.Normalize()
-}
-
-// Mean computes the mean of the Pmf
-func (s *Suite) Mean() float64 {
-	total := 0.0
-	for elem, prob := range s.prob {
-		total += elem * prob
-	}
-	return total
 }
