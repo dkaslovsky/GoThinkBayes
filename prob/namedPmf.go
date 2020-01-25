@@ -84,7 +84,8 @@ func (p *NamedPmf) Print() {
 	fmt.Println()
 }
 
-type namedSuiteObservation interface {
+// NamedSuiteObservation is the interface that must be satisfied to update probabilities
+type NamedSuiteObservation interface {
 	GetLikelihood(string) float64
 }
 
@@ -104,10 +105,21 @@ func NewNamedSuite(hypos ...*NamedPmfElement) *NamedSuite {
 }
 
 // Update updates the probabilities based on an observation
-func (s *NamedSuite) Update(obs namedSuiteObservation) {
+func (s *NamedSuite) Update(ob NamedSuiteObservation) {
 	for hypoName := range s.prob {
-		like := obs.GetLikelihood(hypoName)
+		like := ob.GetLikelihood(hypoName)
 		s.Mult(hypoName, like)
+	}
+	s.Normalize()
+}
+
+// MultiUpdate updates the probabilities based on multiple observations
+func (s *NamedSuite) MultiUpdate(obs []NamedSuiteObservation) {
+	for _, ob := range obs {
+		for hypoName := range s.prob {
+			like := ob.GetLikelihood(hypoName)
+			s.Mult(hypoName, like)
+		}
 	}
 	s.Normalize()
 }

@@ -63,7 +63,7 @@ func (o cookieObservation) GetLikelihood(hypoName string) float64 {
 // Cookie computes the probability (after many other observations) using a suite of hypotheses
 func Cookie() {
 	c := prob.NewNamedSuite(bowl1.hypo, bowl2.hypo)
-	observations := []cookieObservation{
+	obs := []prob.NamedSuiteObservation{
 		cookieObservation{name: "vanilla"},
 		cookieObservation{name: "chocolate"},
 		cookieObservation{name: "vanilla"},
@@ -73,10 +73,7 @@ func Cookie() {
 		cookieObservation{name: "vanilla"},
 		cookieObservation{name: "chocolate"},
 	}
-
-	for _, obs := range observations {
-		c.Update(obs)
-	}
+	c.MultiUpdate(obs)
 
 	c.Print()
 }

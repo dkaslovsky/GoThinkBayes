@@ -89,13 +89,11 @@ func (o mmObservation) GetLikelihood(hypoName string) float64 {
 func MMs() {
 	m := prob.NewNamedSuite(hypoA.hypo, hypoB.hypo)
 
-	obs := []mmObservation{
+	obs := []prob.NamedSuiteObservation{
 		mmObservation{bag: "bag 1", color: "yellow"},
 		mmObservation{bag: "bag 2", color: "green"},
 	}
-	for _, ob := range obs {
-		m.Update(ob)
-	}
+	m.MultiUpdate(obs)
 
 	m.Print()
 }

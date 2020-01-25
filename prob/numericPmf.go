@@ -84,7 +84,8 @@ func (p *NumericPmf) Print() {
 	fmt.Println()
 }
 
-type numericSuiteObservation interface {
+// NumericSuiteObservation is the interface that must be satisfied to update probabilities
+type NumericSuiteObservation interface {
 	GetLikelihood(float64) float64
 }
 
@@ -104,10 +105,21 @@ func NewNumericSuite(hypos ...*NumericPmfElement) *NumericSuite {
 }
 
 // Update updates the probabilities based on an observation
-func (s *NumericSuite) Update(obs numericSuiteObservation) {
+func (s *NumericSuite) Update(ob NumericSuiteObservation) {
 	for hypoName := range s.prob {
-		like := obs.GetLikelihood(hypoName)
+		like := ob.GetLikelihood(hypoName)
 		s.Mult(hypoName, like)
+	}
+	s.Normalize()
+}
+
+// MultiUpdate updates the probabilities based on multiple observations
+func (s *NumericSuite) MultiUpdate(obs []NumericSuiteObservation) {
+	for _, ob := range obs {
+		for hypoName := range s.prob {
+			like := ob.GetLikelihood(hypoName)
+			s.Mult(hypoName, like)
+		}
 	}
 	s.Normalize()
 }

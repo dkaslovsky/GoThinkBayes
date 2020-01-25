@@ -33,7 +33,7 @@ func Dice() {
 		prob.NewNumericPmfElement(20, 1),
 	)
 
-	obs := []diceObservation{
+	obs := []prob.NumericSuiteObservation{
 		diceObservation{6},
 		diceObservation{6},
 		diceObservation{8},
@@ -42,9 +42,7 @@ func Dice() {
 		diceObservation{5},
 		diceObservation{4},
 	}
-	for _, ob := range obs {
-		d.Update(ob)
-	}
+	d.MultiUpdate(obs)
 
 	d.Print()
 }
