@@ -84,7 +84,7 @@ func (p *NumericPmf) Print() {
 	fmt.Println()
 }
 
-type likelihoodGetterByNumeric interface {
+type numericSuiteObservation interface {
 	GetLikelihood(float64) float64
 }
 
@@ -104,7 +104,7 @@ func NewNumericSuite(hypos ...*NumericPmfElement) *NumericSuite {
 }
 
 // Update updates the probabilities based on an observation
-func (s *NumericSuite) Update(obs likelihoodGetterByNumeric) {
+func (s *NumericSuite) Update(obs numericSuiteObservation) {
 	for hypoName := range s.prob {
 		like := obs.GetLikelihood(hypoName)
 		s.Mult(hypoName, like)

@@ -84,7 +84,7 @@ func (p *NamedPmf) Print() {
 	fmt.Println()
 }
 
-type likelihoodGetterByName interface {
+type namedSuiteObservation interface {
 	GetLikelihood(string) float64
 }
 
@@ -104,7 +104,7 @@ func NewNamedSuite(hypos ...*NamedPmfElement) *NamedSuite {
 }
 
 // Update updates the probabilities based on an observation
-func (s *NamedSuite) Update(obs likelihoodGetterByName) {
+func (s *NamedSuite) Update(obs namedSuiteObservation) {
 	for hypoName := range s.prob {
 		like := obs.GetLikelihood(hypoName)
 		s.Mult(hypoName, like)
