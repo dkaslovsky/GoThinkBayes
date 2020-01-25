@@ -123,3 +123,12 @@ func (s *NumericSuite) MultiUpdate(obs []NumericSuiteObservation) {
 	}
 	s.Normalize()
 }
+
+// Mean computes the mean of the Pmf
+func (s *NumericSuite) Mean() float64 {
+	total := 0.0
+	for elem, prob := range s.prob {
+		total += elem * prob
+	}
+	return total
+}
