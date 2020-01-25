@@ -47,7 +47,7 @@ type cookieObservation struct {
 }
 
 // Getlikelihood is the likelihood function for the Cookie problem
-func (o cookieObservation) GetLikelihood(hypoName string) float64 {
+func (o *cookieObservation) GetLikelihood(hypoName string) float64 {
 	hypo, ok := cookieHypos[hypoName]
 	if !ok {
 		return 0

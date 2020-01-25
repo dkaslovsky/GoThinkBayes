@@ -15,7 +15,7 @@ type diceObservation struct {
 }
 
 // Getlikelihood is the likelihood function for the dice problem
-func (o diceObservation) GetLikelihood(hypo float64) float64 {
+func (o *diceObservation) GetLikelihood(hypo float64) float64 {
 	if hypo < o.val {
 		// value of the roll is greater than the number of sides on hypothesis die; can't happen
 		return 0

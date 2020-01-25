@@ -67,7 +67,7 @@ type mmObservation struct {
 }
 
 // Getlikelihood is the likelihood function for the M&M problem
-func (o mmObservation) GetLikelihood(hypoName string) float64 {
+func (o *mmObservation) GetLikelihood(hypoName string) float64 {
 	hypo, ok := mmHypos[hypoName]
 	if !ok {
 		return 0

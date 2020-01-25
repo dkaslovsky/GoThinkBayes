@@ -21,7 +21,7 @@ type doorObservation struct {
 }
 
 // Getlikelihood is the likelihood function for "Monty chooses door B and there is no car there"
-func (o doorObservation) GetLikelihood(hypoName string) float64 {
+func (o *doorObservation) GetLikelihood(hypoName string) float64 {
 	if hypoName == o.name {
 		// we only observe a door that Monty shows which cannot contain the car
 		return 0
