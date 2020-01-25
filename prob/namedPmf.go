@@ -20,64 +20,58 @@ func NewNamedPmfElement(name string, prob float64) *NamedPmfElement {
 
 // NamedPmf is a probability mass function
 type NamedPmf struct {
-	prob map[string]float64
-	sum  float64
+	pmf       *NumericPmf
+	nameToIdx map[string]float64
+	nextIdx   float64
 }
 
 // NewNamedPmf creates a new Pmf
 func NewNamedPmf() *NamedPmf {
 	return &NamedPmf{
-		prob: make(map[string]float64),
+		pmf:       NewNumericPmf(),
+		nameToIdx: make(map[string]float64),
+		nextIdx:   0.0,
 	}
 }
 
 // Set sets the value of an element
 func (p *NamedPmf) Set(elem *NamedPmfElement) {
-	p.prob[elem.Name] = elem.Prob
-	p.sum += elem.Prob
+	p.pmf.Set(NewNumericPmfElement(p.nextIdx, elem.Prob))
+	p.nameToIdx[elem.Name] = p.nextIdx
+	p.nextIdx++
 }
 
 // Normalize normalizes the values of the Pmf to sum to 1
 func (p *NamedPmf) Normalize() {
-	if p.sum == 0 {
-		for elem := range p.prob {
-			p.prob[elem] = 0
-		}
-		return
-	}
-
-	for elem := range p.prob {
-		p.prob[elem] /= p.sum
-	}
-	p.sum = 1.0
+	p.pmf.Normalize()
 }
 
 // Mult multiplies the probability associated with an element by the specified value
 func (p *NamedPmf) Mult(elem string, multVal float64) {
-	curVal, ok := p.prob[elem]
+	idx, ok := p.nameToIdx[elem]
 	if !ok {
 		// TODO: log a warning, print for now
 		fmt.Printf("Attempting to modify nonexisting element [%s]\n", elem)
 		return
 	}
-	p.prob[elem] *= multVal
-	p.sum += curVal * (multVal - 1) // maintain sum by subtracting curVal and adding curVal*multVal
+	p.pmf.Mult(idx, multVal)
 }
 
 // Prob returns the probability associated with an element
 func (p *NamedPmf) Prob(elem string) float64 {
-	val, ok := p.prob[elem]
+	idx, ok := p.nameToIdx[elem]
 	if !ok {
 		return 0
 	}
-	return val
+	return p.pmf.Prob(idx)
 }
 
 // Print prints the Pmf
 func (p *NamedPmf) Print() {
 	border := "----------"
 	fmt.Println(border)
-	for elem, prob := range p.prob {
+	for elem := range p.nameToIdx {
+		prob := p.Prob(elem)
 		fmt.Printf("%s: %0.2f\n", elem, prob)
 	}
 	fmt.Println(border)
@@ -106,7 +100,7 @@ func NewNamedSuite(hypos ...*NamedPmfElement) *NamedSuite {
 
 // Update updates the probabilities based on an observation
 func (s *NamedSuite) Update(ob NamedSuiteObservation) {
-	for hypoName := range s.prob {
+	for hypoName := range s.nameToIdx {
 		like := ob.GetLikelihood(hypoName)
 		s.Mult(hypoName, like)
 	}
@@ -116,7 +110,7 @@ func (s *NamedSuite) Update(ob NamedSuiteObservation) {
 // MultiUpdate updates the probabilities based on multiple observations
 func (s *NamedSuite) MultiUpdate(obs []NamedSuiteObservation) {
 	for _, ob := range obs {
-		for hypoName := range s.prob {
+		for hypoName := range s.nameToIdx {
 			like := ob.GetLikelihood(hypoName)
 			s.Mult(hypoName, like)
 		}
