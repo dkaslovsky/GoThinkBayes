@@ -118,18 +118,7 @@ func locomotivePowerLawMultipleObservation() {
 		l.MultiUpdate(obs)
 
 		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.high, l.Mean())
-		// TODO: log error instead of print
-		lower, err := l.Percentile(0.05)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		upper, _ := l.Percentile(0.95)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		fmt.Printf("[90%% Credible Interval: (%f, %f)]\n", lower, upper)
+		fmt.Printf("[90%% Credible Interval: (%f, %f)]\n", l.Percentile(0.05), l.Percentile(0.95))
 
 	}
 

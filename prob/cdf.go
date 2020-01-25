@@ -1,7 +1,6 @@
 package prob
 
 import (
-	"fmt"
 	"sort"
 )
 
@@ -32,17 +31,17 @@ func NewCdf(p map[float64]float64) *Cdf {
 }
 
 // Percentile computes the specified percentile of the distribution
-func (c *Cdf) Percentile(p float64) (val float64, err error) {
-	if p < 0 || p > 1 {
-		return val, fmt.Errorf("invalid percentile [%f]", p)
+func (c *Cdf) Percentile(p float64) float64 {
+	if p < 0 {
+		return c.idxToelems[0]
 	}
-	// TODO: use bisection?
-	for i, prob := range c.prob {
-		if prob >= p {
-			return c.idxToelems[i], nil
-		}
+	if p > 1 {
+		return c.idxToelems[len(c.idxToelems)-1]
 	}
-	return val, fmt.Errorf("unable to compute percentile [%f]", p)
+	i := sort.Search(len(c.prob), func(i int) bool {
+		return c.prob[i] >= p
+	})
+	return c.idxToelems[i]
 }
 
 func sortKeys(p map[float64]float64) []float64 {
