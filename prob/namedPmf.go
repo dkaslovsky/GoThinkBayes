@@ -20,7 +20,7 @@ func NewNamedPmfElement(name string, prob float64) *NamedPmfElement {
 
 // NamedPmf is a probability mass function
 type NamedPmf struct {
-	pmf       *NumericPmf
+	pmf       *Pmf
 	nameToIdx map[string]float64
 	nextIdx   float64
 }
@@ -28,7 +28,7 @@ type NamedPmf struct {
 // NewNamedPmf creates a new Pmf
 func NewNamedPmf() *NamedPmf {
 	return &NamedPmf{
-		pmf:       NewNumericPmf(),
+		pmf:       NewPmf(),
 		nameToIdx: make(map[string]float64),
 		nextIdx:   0.0,
 	}
@@ -36,7 +36,7 @@ func NewNamedPmf() *NamedPmf {
 
 // Set sets the value of an element
 func (p *NamedPmf) Set(elem *NamedPmfElement) {
-	p.pmf.Set(NewNumericPmfElement(p.nextIdx, elem.Prob))
+	p.pmf.Set(NewPmfElement(p.nextIdx, elem.Prob))
 	p.nameToIdx[elem.Name] = p.nextIdx
 	p.nextIdx++
 }

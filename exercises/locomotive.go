@@ -32,18 +32,18 @@ var bounds = []bound{
 	},
 }
 
-func uniform(b bound) (elems []*prob.NumericPmfElement) {
+func uniform(b bound) (elems []*prob.PmfElement) {
 	for i := b.low; i <= b.high; i++ {
-		elems = append(elems, prob.NewNumericPmfElement(float64(i), 1))
+		elems = append(elems, prob.NewPmfElement(float64(i), 1))
 	}
 	return elems
 }
 
-func powerLaw(b bound, alpha float64) (elems []*prob.NumericPmfElement) {
+func powerLaw(b bound, alpha float64) (elems []*prob.PmfElement) {
 	a := -alpha
 	for i := b.low; i <= b.high; i++ {
 		n := float64(i)
-		elems = append(elems, prob.NewNumericPmfElement(n, math.Pow(n, a)))
+		elems = append(elems, prob.NewPmfElement(n, math.Pow(n, a)))
 	}
 	return elems
 }
@@ -64,7 +64,7 @@ func locomototiveUniformSingleObservation() {
 
 	for _, bound := range bounds {
 		hypos := uniform(bound)
-		l := prob.NewNumericSuite(hypos...)
+		l := prob.NewSuite(hypos...)
 		l.Update(newLocomotiveObservation(60))
 
 		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, l.Mean())
@@ -76,9 +76,9 @@ func locomototiveUniformMultipleObservations() {
 
 	for _, bound := range bounds {
 		hypos := uniform(bound)
-		l := prob.NewNumericSuite(hypos...)
+		l := prob.NewSuite(hypos...)
 
-		obs := []prob.NumericSuiteObservation{
+		obs := []prob.SuiteObservation{
 			newLocomotiveObservation(60),
 			newLocomotiveObservation(30),
 			newLocomotiveObservation(90),
@@ -95,7 +95,7 @@ func locomotivePowerLawSingleObservation() {
 	alpha := 1.0
 	for _, bound := range bounds {
 		hypos := powerLaw(bound, alpha)
-		l := prob.NewNumericSuite(hypos...)
+		l := prob.NewSuite(hypos...)
 		l.Update(newLocomotiveObservation(60))
 
 		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, l.Mean())
@@ -108,9 +108,9 @@ func locomotivePowerLawMultipleObservation() {
 	alpha := 1.0
 	for _, bound := range bounds {
 		hypos := powerLaw(bound, alpha)
-		l := prob.NewNumericSuite(hypos...)
+		l := prob.NewSuite(hypos...)
 
-		obs := []prob.NumericSuiteObservation{
+		obs := []prob.SuiteObservation{
 			newLocomotiveObservation(60),
 			newLocomotiveObservation(30),
 			newLocomotiveObservation(90),

@@ -4,41 +4,41 @@ import (
 	"fmt"
 )
 
-// NumericPmfElement is a discrete element in a NumericPmf
-type NumericPmfElement struct {
+// PmfElement is a discrete element in a NumericPmf
+type PmfElement struct {
 	Val  float64
 	Prob float64
 }
 
-// NewNumericPmfElement creates a new NumericPmfElement
-func NewNumericPmfElement(val float64, prob float64) *NumericPmfElement {
-	return &NumericPmfElement{
+// NewPmfElement creates a new NumericPmfElement
+func NewPmfElement(val float64, prob float64) *PmfElement {
+	return &PmfElement{
 		Val:  val,
 		Prob: prob,
 	}
 }
 
-// NumericPmf is a probability mass function
-type NumericPmf struct {
+// Pmf is a probability mass function
+type Pmf struct {
 	prob map[float64]float64
 	sum  float64
 }
 
-// NewNumericPmf creates a new Pmf
-func NewNumericPmf() *NumericPmf {
-	return &NumericPmf{
+// NewPmf creates a new Pmf
+func NewPmf() *Pmf {
+	return &Pmf{
 		prob: make(map[float64]float64),
 	}
 }
 
 // Set sets the value of an element
-func (p *NumericPmf) Set(elem *NumericPmfElement) {
+func (p *Pmf) Set(elem *PmfElement) {
 	p.prob[elem.Val] = elem.Prob
 	p.sum += elem.Prob
 }
 
 // Normalize normalizes the values of the Pmf to sum to 1
-func (p *NumericPmf) Normalize() {
+func (p *Pmf) Normalize() {
 	if p.sum == 0 {
 		for elem := range p.prob {
 			p.prob[elem] = 0
@@ -53,7 +53,7 @@ func (p *NumericPmf) Normalize() {
 }
 
 // Mult multiplies the probability associated with an element by the specified value
-func (p *NumericPmf) Mult(elem float64, multVal float64) {
+func (p *Pmf) Mult(elem float64, multVal float64) {
 	curVal, ok := p.prob[elem]
 	if !ok {
 		// TODO: log a warning, print for now
@@ -65,7 +65,7 @@ func (p *NumericPmf) Mult(elem float64, multVal float64) {
 }
 
 // Prob returns the probability associated with an element
-func (p *NumericPmf) Prob(elem float64) float64 {
+func (p *Pmf) Prob(elem float64) float64 {
 	val, ok := p.prob[elem]
 	if !ok {
 		return 0
@@ -74,7 +74,7 @@ func (p *NumericPmf) Prob(elem float64) float64 {
 }
 
 // Print prints the Pmf
-func (p *NumericPmf) Print() {
+func (p *Pmf) Print() {
 	border := "----------"
 	fmt.Println(border)
 	for elem, prob := range p.prob {
@@ -84,19 +84,19 @@ func (p *NumericPmf) Print() {
 	fmt.Println()
 }
 
-// NumericSuiteObservation is the interface that must be satisfied to update probabilities
-type NumericSuiteObservation interface {
+// SuiteObservation is the interface that must be satisfied to update probabilities
+type SuiteObservation interface {
 	GetLikelihood(float64) float64
 }
 
-// NumericSuite is a suite of hypotheses with associated probabilities (a Pmf)
-type NumericSuite struct {
-	*NumericPmf
+// Suite is a suite of hypotheses with associated probabilities (a Pmf)
+type Suite struct {
+	*Pmf
 }
 
-// NewNumericSuite creates a new Suite
-func NewNumericSuite(hypos ...*NumericPmfElement) *NumericSuite {
-	s := &NumericSuite{NewNumericPmf()}
+// NewSuite creates a new Suite
+func NewSuite(hypos ...*PmfElement) *Suite {
+	s := &Suite{NewPmf()}
 	for _, hypo := range hypos {
 		s.Set(hypo)
 	}
@@ -105,7 +105,7 @@ func NewNumericSuite(hypos ...*NumericPmfElement) *NumericSuite {
 }
 
 // Update updates the probabilities based on an observation
-func (s *NumericSuite) Update(ob NumericSuiteObservation) {
+func (s *Suite) Update(ob SuiteObservation) {
 	for hypoName := range s.prob {
 		like := ob.GetLikelihood(hypoName)
 		s.Mult(hypoName, like)
@@ -114,7 +114,7 @@ func (s *NumericSuite) Update(ob NumericSuiteObservation) {
 }
 
 // MultiUpdate updates the probabilities based on multiple observations
-func (s *NumericSuite) MultiUpdate(obs []NumericSuiteObservation) {
+func (s *Suite) MultiUpdate(obs []SuiteObservation) {
 	for _, ob := range obs {
 		for hypoName := range s.prob {
 			like := ob.GetLikelihood(hypoName)
@@ -125,7 +125,7 @@ func (s *NumericSuite) MultiUpdate(obs []NumericSuiteObservation) {
 }
 
 // Mean computes the mean of the Pmf
-func (s *NumericSuite) Mean() float64 {
+func (s *Suite) Mean() float64 {
 	total := 0.0
 	for elem, prob := range s.prob {
 		total += elem * prob
