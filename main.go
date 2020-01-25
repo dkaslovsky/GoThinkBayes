@@ -21,4 +21,7 @@ func main() {
 
 	fmt.Println("Dice:")
 	exercises.Dice()
+
+	fmt.Println("Locomotive:")
+	exercises.Locomotive()
 }
