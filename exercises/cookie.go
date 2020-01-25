@@ -64,14 +64,14 @@ func (o cookieObservation) GetLikelihood(hypoName string) float64 {
 func Cookie() {
 	c := prob.NewNamedSuite(bowl1.hypo, bowl2.hypo)
 	obs := []prob.NamedSuiteObservation{
-		cookieObservation{name: "vanilla"},
-		cookieObservation{name: "chocolate"},
-		cookieObservation{name: "vanilla"},
-		cookieObservation{name: "chocolate"},
-		cookieObservation{name: "chocolate"},
-		cookieObservation{name: "chocolate"},
-		cookieObservation{name: "vanilla"},
-		cookieObservation{name: "chocolate"},
+		&cookieObservation{name: "vanilla"},
+		&cookieObservation{name: "chocolate"},
+		&cookieObservation{name: "vanilla"},
+		&cookieObservation{name: "chocolate"},
+		&cookieObservation{name: "chocolate"},
+		&cookieObservation{name: "chocolate"},
+		&cookieObservation{name: "vanilla"},
+		&cookieObservation{name: "chocolate"},
 	}
 	c.MultiUpdate(obs)
 

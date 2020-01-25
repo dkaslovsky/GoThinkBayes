@@ -90,8 +90,8 @@ func MMs() {
 	m := prob.NewNamedSuite(hypoA.hypo, hypoB.hypo)
 
 	obs := []prob.NamedSuiteObservation{
-		mmObservation{bag: "bag 1", color: "yellow"},
-		mmObservation{bag: "bag 2", color: "green"},
+		&mmObservation{bag: "bag 1", color: "yellow"},
+		&mmObservation{bag: "bag 2", color: "green"},
 	}
 	m.MultiUpdate(obs)
 

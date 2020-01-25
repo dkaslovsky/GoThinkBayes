@@ -39,8 +39,8 @@ func (o doorObservation) GetLikelihood(hypoName string) float64 {
 func MontyHall() {
 	monty := prob.NewNamedSuite(doorA, doorB, doorC)
 
-	obs := doorObservation{name: "door B"}
-	monty.Update(obs)
+	ob := &doorObservation{name: "door B"}
+	monty.Update(ob)
 
 	monty.Print()
 }

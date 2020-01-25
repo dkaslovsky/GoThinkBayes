@@ -34,13 +34,13 @@ func Dice() {
 	)
 
 	obs := []prob.NumericSuiteObservation{
-		diceObservation{6},
-		diceObservation{6},
-		diceObservation{8},
-		diceObservation{7},
-		diceObservation{7},
-		diceObservation{5},
-		diceObservation{4},
+		&diceObservation{6},
+		&diceObservation{6},
+		&diceObservation{8},
+		&diceObservation{7},
+		&diceObservation{7},
+		&diceObservation{5},
+		&diceObservation{4},
 	}
 	d.MultiUpdate(obs)
 
