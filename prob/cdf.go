@@ -5,12 +5,14 @@ import (
 	"sort"
 )
 
+// Cdf is a cumulative distribution function
 type Cdf struct {
 	elemsToIdx map[float64]int
 	idxToelems map[int]float64
 	prob       []float64
 }
 
+// NewCdf creates a new Cdf
 func NewCdf(p map[float64]float64) *Cdf {
 	elems := make(map[float64]int)
 	prob := []float64{}
@@ -29,6 +31,7 @@ func NewCdf(p map[float64]float64) *Cdf {
 	}
 }
 
+// Percentile computes the specified percentile of the distribution
 func (c *Cdf) Percentile(p float64) (val float64, err error) {
 	if p < 0 || p > 1 {
 		return val, fmt.Errorf("invalid percentile [%f]", p)

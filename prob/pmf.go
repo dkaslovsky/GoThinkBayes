@@ -93,7 +93,7 @@ func (p *Pmf) Mean() float64 {
 	return total
 }
 
-// Percentile computes the specified percentile of the Pmf
+// Percentile computes the specified percentile of the distribution
 func (p *Pmf) Percentile(percentile float64) (elem float64, err error) {
 	if percentile < 0 || percentile > 1 {
 		return elem, fmt.Errorf("invalid percentile [%v]", percentile)
