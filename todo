@@ -1,6 +1,5 @@
 pkg
 tests
 plots
-bisection
 cli / flags
 logging vs printing / todos
