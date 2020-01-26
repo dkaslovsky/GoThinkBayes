@@ -1,5 +1,5 @@
 pkg
-tests
+tests: percentile for pmf, percentile for cdf, NewCDF
 plots
 cli / flags
 logging vs printing / todos
