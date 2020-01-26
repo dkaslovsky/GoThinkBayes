@@ -29,7 +29,7 @@ type NamedPmf struct {
 func NewNamedPmf() *NamedPmf {
 	return &NamedPmf{
 		pmf:       NewPmf(),
-		nameToIdx: make(map[string]float64),
+		nameToIdx: map[string]float64{},
 		nextIdx:   0.0,
 	}
 }

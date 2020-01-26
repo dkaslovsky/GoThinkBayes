@@ -27,7 +27,7 @@ type Pmf struct {
 // NewPmf creates a new Pmf
 func NewPmf() *Pmf {
 	return &Pmf{
-		prob: make(map[float64]float64),
+		prob: map[float64]float64{},
 	}
 }
 

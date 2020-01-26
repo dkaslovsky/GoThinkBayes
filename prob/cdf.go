@@ -13,7 +13,7 @@ type Cdf struct {
 
 // NewCdf creates a new Cdf
 func NewCdf(p map[float64]float64) *Cdf {
-	elems := make(map[float64]int)
+	elems := map[float64]int{}
 	prob := []float64{}
 
 	cumsum := 0.0
@@ -54,7 +54,7 @@ func sortKeys(p map[float64]float64) []float64 {
 }
 
 func reverseMap(m map[float64]int) map[int]float64 {
-	revM := make(map[int]float64)
+	revM := map[int]float64{}
 	for key, val := range m {
 		revM[val] = key
 	}
