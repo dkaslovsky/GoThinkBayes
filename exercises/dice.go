@@ -25,7 +25,7 @@ func (o *diceObservation) GetLikelihood(hypo float64) float64 {
 
 // Dice runs the dice problem
 func Dice() {
-	d := prob.NewSuite(
+	s := prob.NewSuite(
 		prob.NewPmfElement(4, 1),
 		prob.NewPmfElement(6, 1),
 		prob.NewPmfElement(8, 1),
@@ -42,7 +42,7 @@ func Dice() {
 		&diceObservation{5},
 		&diceObservation{4},
 	}
-	d.MultiUpdate(obs)
+	s.MultiUpdate(obs)
 
-	d.Print()
+	s.Print()
 }

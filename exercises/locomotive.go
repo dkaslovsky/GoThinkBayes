@@ -64,10 +64,10 @@ func locomototiveUniformSingleObservation() {
 
 	for _, bound := range bounds {
 		hypos := uniform(bound)
-		l := prob.NewSuite(hypos...)
-		l.Update(newLocomotiveObservation(60))
+		s := prob.NewSuite(hypos...)
+		s.Update(newLocomotiveObservation(60))
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, l.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, s.Mean())
 	}
 }
 
@@ -76,16 +76,16 @@ func locomototiveUniformMultipleObservations() {
 
 	for _, bound := range bounds {
 		hypos := uniform(bound)
-		l := prob.NewSuite(hypos...)
+		s := prob.NewSuite(hypos...)
 
 		obs := []prob.SuiteObservation{
 			newLocomotiveObservation(60),
 			newLocomotiveObservation(30),
 			newLocomotiveObservation(90),
 		}
-		l.MultiUpdate(obs)
+		s.MultiUpdate(obs)
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, l.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, s.Mean())
 	}
 }
 
@@ -95,10 +95,10 @@ func locomotivePowerLawSingleObservation() {
 	alpha := 1.0
 	for _, bound := range bounds {
 		hypos := powerLaw(bound, alpha)
-		l := prob.NewSuite(hypos...)
-		l.Update(newLocomotiveObservation(60))
+		s := prob.NewSuite(hypos...)
+		s.Update(newLocomotiveObservation(60))
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, l.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, s.Mean())
 	}
 }
 
@@ -108,18 +108,18 @@ func locomotivePowerLawMultipleObservation() {
 	alpha := 1.0
 	for _, bound := range bounds {
 		hypos := powerLaw(bound, alpha)
-		l := prob.NewSuite(hypos...)
+		s := prob.NewSuite(hypos...)
 
 		obs := []prob.SuiteObservation{
 			newLocomotiveObservation(60),
 			newLocomotiveObservation(30),
 			newLocomotiveObservation(90),
 		}
-		l.MultiUpdate(obs)
+		s.MultiUpdate(obs)
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.high, l.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.high, s.Mean())
 
-		cdf := l.MakeCdf()
+		cdf := s.MakeCdf()
 		lower := cdf.Percentile(0.05)
 		upper := cdf.Percentile(0.95)
 		fmt.Printf("[90%% Credible Interval: (%f, %f)]\n", lower, upper)
