@@ -53,6 +53,8 @@ func sortKeys(p map[float64]float64) []float64 {
 	return keys
 }
 
+// result of reverseMap is unique only if values of input map are unique;
+// intended use is to reverse a map constructed with increasing and therefore unique values
 func reverseMap(m map[float64]int) map[int]float64 {
 	revM := map[int]float64{}
 	for key, val := range m {
