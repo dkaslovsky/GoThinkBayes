@@ -119,10 +119,23 @@ func locomotivePowerLawMultipleObservation() {
 
 		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.high, s.Mean())
 
-		cdf := s.MakeCdf()
-		lower := cdf.Percentile(0.05)
-		upper := cdf.Percentile(0.95)
-		fmt.Printf("[90%% Credible Interval: (%f, %f)]\n", lower, upper)
+		// compute 90% credible interval from cdf
+		cdf, err := s.MakeCdf()
+		if err != nil {
+			fmt.Printf("[Could not compute 90%% Credible Interval due to error [%v]]\n", err)
+			continue
+		}
+		lower, err := cdf.Percentile(0.05)
+		if err != nil {
+			fmt.Printf("[Could not compute 90%% Credible Interval due to error [%v]]\n", err)
+			continue
+		}
+		upper, err := cdf.Percentile(0.95)
+		if err != nil {
+			fmt.Printf("[Could not compute 90%% Credible Interval due to error [%v]]\n", err)
+			continue
+		}
+		fmt.Printf("[90%% Credible Interval: (%0.2f, %0.2f)]\n", lower, upper)
 	}
 
 }

@@ -1,8 +1,13 @@
 package prob
 
 import (
+	"fmt"
+	"math"
 	"sort"
 )
+
+// float64EqualTol is the tolerance at which we consider float64s equal
+const float64EqualTol = 1e-5
 
 // Cdf is a cumulative distribution function
 type Cdf struct {
@@ -12,7 +17,11 @@ type Cdf struct {
 }
 
 // NewCdf creates a new Cdf
-func NewCdf(p map[float64]float64) *Cdf {
+func NewCdf(p map[float64]float64) (c *Cdf, err error) {
+	if len(p) == 0 {
+		return c, fmt.Errorf("cannot compute cdf from empty input map")
+	}
+
 	elems := map[float64]int{}
 	prob := []float64{}
 
@@ -23,25 +32,28 @@ func NewCdf(p map[float64]float64) *Cdf {
 		prob = append(prob, cumsum)
 	}
 
-	return &Cdf{
+	// cumulative sum of input probabilities must be 1 for a proper cdf
+	if math.Abs(cumsum-1.0) > float64EqualTol {
+		return c, fmt.Errorf("cumulative sum of probabilities [%f] not equal to 1.0", cumsum)
+	}
+
+	c = &Cdf{
 		elemsToIdx: elems,
 		idxToelems: reverseMap(elems),
 		prob:       prob,
 	}
+	return c, nil
 }
 
 // Percentile computes the specified percentile of the distribution
-func (c *Cdf) Percentile(p float64) float64 {
-	if p < 0 {
-		return c.idxToelems[0]
-	}
-	if p > 1 {
-		return c.idxToelems[len(c.idxToelems)-1]
+func (c *Cdf) Percentile(p float64) (float64, error) {
+	if p < 0 || p > 1 {
+		return 0, fmt.Errorf("percentile [%f] is outside of required range [0, 1]", p)
 	}
 	i := sort.Search(len(c.prob), func(i int) bool {
 		return c.prob[i] >= p
 	})
-	return c.idxToelems[i]
+	return c.idxToelems[i], nil
 }
 
 func sortKeys(p map[float64]float64) []float64 {

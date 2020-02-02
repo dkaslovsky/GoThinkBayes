@@ -94,28 +94,30 @@ func (p *Pmf) Mean() float64 {
 }
 
 // Percentile computes the specified percentile of the distribution
-func (p *Pmf) Percentile(percentile float64) float64 {
-	elems := sortKeys(p.prob)
-
-	if percentile < 0 {
-		return elems[0]
+func (p *Pmf) Percentile(percentile float64) (float64, error) {
+	if percentile < 0 || percentile > 1 {
+		return 0, fmt.Errorf("percentile [%f] is outside of required range [0, 1]", percentile)
 	}
-	if percentile > 1 {
-		return elems[len(elems)-1]
+	if len(p.prob) == 0 {
+		return 0, fmt.Errorf("cannot compute percentile of empty Pmf")
+	}
+	if p.sum != 1 {
+		return 0, fmt.Errorf("cannot compute percentile of unnormalized Pmf")
 	}
 
 	total := 0.0
-	for _, elem := range elems {
+	for _, elem := range sortKeys(p.prob) {
 		total += p.prob[elem]
 		if total >= percentile {
-			return elem
+			return elem, nil
 		}
 	}
-	return elems[len(elems)-1]
+
+	return 0, fmt.Errorf("unable to compute percentile, potentially unnormalized Pmf")
 }
 
 // MakeCdf transforms a Pmf to a Cdf
-func (p *Pmf) MakeCdf() *Cdf {
+func (p *Pmf) MakeCdf() (*Cdf, error) {
 	return NewCdf(p.prob)
 }
 

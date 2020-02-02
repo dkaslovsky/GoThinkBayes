@@ -3,11 +3,10 @@ package prob
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 )
-
-// float64EqualTol is the tolerance at which we consider float64s equal
-const float64EqualTol = 1e-9
 
 func TestNewPmf(t *testing.T) {
 	t.Run("new Pmf", func(t *testing.T) {
@@ -258,6 +257,106 @@ func TestMean(t *testing.T) {
 
 			val := p.Mean()
 			assert.Equal(t, test.expectedMean, val)
+		})
+	}
+}
+
+func TestPmfPercentile(t *testing.T) {
+	tests := map[string]struct {
+		pmf        *Pmf
+		percentile float64
+		expected   float64
+		shouldErr  bool
+	}{
+		"empty pmf": {
+			pmf:        NewPmf(),
+			percentile: 0.5,
+			expected:   0,
+			shouldErr:  true,
+		},
+		"percentile less than 0": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
+				sum:  1,
+			},
+			percentile: -0.5,
+			expected:   0,
+			shouldErr:  true,
+		},
+		"percentile greater than 1": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
+				sum:  1,
+			},
+			percentile: 5,
+			expected:   0,
+			shouldErr:  true,
+		},
+		"unnormalized pmf": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.02, 2: 0.03, 3: 0.04, 4: 0.01},
+				sum:  0.1,
+			},
+			percentile: 0.5,
+			expected:   0,
+			shouldErr:  true,
+		},
+		"unnormalized pmf with sum = 1": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.02, 2: 0.03, 3: 0.04, 4: 0.01},
+				sum:  1,
+			},
+			percentile: 0.5,
+			expected:   0,
+			shouldErr:  true,
+		},
+		"percentile 0": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
+				sum:  1,
+			},
+			percentile: 0,
+			expected:   1,
+			shouldErr:  false,
+		},
+		"percentile 1": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
+				sum:  1,
+			},
+			percentile: 1,
+			expected:   4,
+			shouldErr:  false,
+		},
+		"percentile 0.5": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
+				sum:  1,
+			},
+			percentile: 0.5,
+			expected:   2,
+			shouldErr:  false,
+		},
+		"percentile 0.51": {
+			pmf: &Pmf{
+				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
+				sum:  1,
+			},
+			percentile: 0.51,
+			expected:   3,
+			shouldErr:  false,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			res, err := test.pmf.Percentile(test.percentile)
+			if test.shouldErr {
+				require.NotNil(t, err)
+				return
+			}
+			require.Nil(t, err)
+			assert.Equal(t, test.expected, res)
 		})
 	}
 }
