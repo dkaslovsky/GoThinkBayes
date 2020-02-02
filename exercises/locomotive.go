@@ -2,7 +2,6 @@ package exercises
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
@@ -12,40 +11,10 @@ import (
 // One day you see a locomotive with the number 60.
 // Estimate how many loco- motives the railroad has.
 
-type bound struct {
-	low  int
-	high int
-}
-
-var bounds = []bound{
-	bound{
-		low:  1,
-		high: 500,
-	},
-	bound{
-		low:  1,
-		high: 1000,
-	},
-	bound{
-		low:  1,
-		high: 2000,
-	},
-}
-
-func uniform(b bound) (elems []*prob.PmfElement) {
-	for i := b.low; i <= b.high; i++ {
-		elems = append(elems, prob.NewPmfElement(float64(i), 1))
-	}
-	return elems
-}
-
-func powerLaw(b bound, alpha float64) (elems []*prob.PmfElement) {
-	a := -alpha
-	for i := b.low; i <= b.high; i++ {
-		n := float64(i)
-		elems = append(elems, prob.NewPmfElement(n, math.Pow(n, a)))
-	}
-	return elems
+var bounds = []*prob.Bound{
+	prob.NewBound(1, 500),
+	prob.NewBound(1, 1000),
+	prob.NewBound(1, 2000),
 }
 
 // locomotive observations (likelihood function) are the same as that of the dice problem
@@ -63,11 +32,11 @@ func locomototiveUniformSingleObservation() {
 	fmt.Println("Uniform Single Observation")
 
 	for _, bound := range bounds {
-		hypos := uniform(bound)
+		hypos := prob.Uniform(bound)
 		s := prob.NewSuite(hypos...)
 		s.Update(newLocomotiveObservation(60))
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, s.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, s.Mean())
 	}
 }
 
@@ -75,7 +44,7 @@ func locomototiveUniformMultipleObservations() {
 	fmt.Println("Uniform Multiple Observation")
 
 	for _, bound := range bounds {
-		hypos := uniform(bound)
+		hypos := prob.Uniform(bound)
 		s := prob.NewSuite(hypos...)
 
 		obs := []prob.SuiteObservation{
@@ -85,7 +54,7 @@ func locomototiveUniformMultipleObservations() {
 		}
 		s.MultiUpdate(obs)
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, s.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, s.Mean())
 	}
 }
 
@@ -94,11 +63,11 @@ func locomotivePowerLawSingleObservation() {
 
 	alpha := 1.0
 	for _, bound := range bounds {
-		hypos := powerLaw(bound, alpha)
+		hypos := prob.PowerLaw(bound, alpha)
 		s := prob.NewSuite(hypos...)
 		s.Update(newLocomotiveObservation(60))
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.high, s.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, s.Mean())
 	}
 }
 
@@ -107,7 +76,7 @@ func locomotivePowerLawMultipleObservation() {
 
 	alpha := 1.0
 	for _, bound := range bounds {
-		hypos := powerLaw(bound, alpha)
+		hypos := prob.PowerLaw(bound, alpha)
 		s := prob.NewSuite(hypos...)
 
 		obs := []prob.SuiteObservation{
@@ -117,7 +86,7 @@ func locomotivePowerLawMultipleObservation() {
 		}
 		s.MultiUpdate(obs)
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.high, s.Mean())
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.High, s.Mean())
 
 		// compute 90% credible interval from cdf
 		cdf, err := s.MakeCdf()
