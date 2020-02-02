@@ -43,7 +43,7 @@ func TestSet(t *testing.T) {
 			}
 
 			for _, elem := range test.elements {
-				assert.Contains(t, p.prob, elem.Val)
+				require.Contains(t, p.prob, elem.Val)
 				assert.Equal(t, elem.Prob, p.prob[elem.Val])
 			}
 			assert.Equal(t, test.expectedSum, p.sum)
@@ -128,6 +128,7 @@ func TestNormalize(t *testing.T) {
 			for _, element := range test.elements {
 				p.Set(element)
 			}
+			// overwrite p.sum for testing
 			p.sum = test.sum
 
 			p.Normalize()
@@ -172,18 +173,18 @@ func TestMult(t *testing.T) {
 			for _, element := range test.elements {
 				p.Set(element)
 			}
+			// store original probability before mutating
 			origProb, found := p.prob[test.elem]
 
 			p.Mult(test.elem, test.multVal)
-			// test probability of specified element correctly multiplied
-			if found {
-				assert.Equal(t, origProb*test.multVal, p.prob[test.elem])
-			}
-			// test other probabilities are unchanged
+
 			for _, element := range test.elements {
-				if element.Val == test.elem {
+				// test probability of specified element correctly multiplied
+				if element.Val == test.elem && found {
+					assert.Equal(t, origProb*test.multVal, p.prob[test.elem])
 					continue
 				}
+				// test other probabilities are unchanged
 				assert.Equal(t, element.Prob, p.prob[element.Val])
 			}
 			assert.Equal(t, test.expectedSum, p.sum)
