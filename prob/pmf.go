@@ -2,6 +2,7 @@ package prob
 
 import (
 	"fmt"
+	"math"
 )
 
 // PmfElement is a discrete element in a NumericPmf
@@ -41,16 +42,19 @@ func (p *Pmf) Set(elem *PmfElement) {
 // Normalize normalizes the values of the Pmf to sum to 1
 func (p *Pmf) Normalize() {
 	if p.sum == 0 {
-		for elem := range p.prob {
-			p.prob[elem] = 0
-		}
 		return
 	}
 
+	// maintain sum of normalized probabilities:
+	// in theory this should be identically 1 but multiplying small numbers
+	// (probabilities) leads to numerical instability for which we must account
+	newSum := 0.0
 	for elem := range p.prob {
-		p.prob[elem] /= p.sum
+		newProb := p.prob[elem] / p.sum
+		p.prob[elem] = newProb
+		newSum += newProb
 	}
-	p.sum = 1.0
+	p.sum = newSum
 }
 
 // Mult multiplies the probability associated with an element by the specified value
@@ -102,8 +106,11 @@ func (p *Pmf) Percentile(percentile float64) (float64, error) {
 	if len(p.prob) == 0 {
 		return 0, fmt.Errorf("cannot compute percentile of empty Pmf")
 	}
-	if p.sum != 1 {
-		return 0, fmt.Errorf("cannot compute percentile of unnormalized Pmf")
+	if math.Abs(p.sum-1.0) > float64EqualTol {
+		return 0, fmt.Errorf(
+			"cannot compute percentile of unnormalized Pmf (sum of elements [%f])",
+			p.sum,
+		)
 	}
 
 	total := 0.0
