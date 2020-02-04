@@ -3,3 +3,6 @@ tests: NewCDF
 plots
 cli / flags
 logging vs printing / todos
+
+percentile unnormalized check
+write tests for numerical stability

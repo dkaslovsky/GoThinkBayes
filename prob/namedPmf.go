@@ -109,10 +109,14 @@ func (s *NamedSuite) Update(ob NamedSuiteObservation) {
 
 // MultiUpdate updates the probabilities based on multiple observations
 func (s *NamedSuite) MultiUpdate(obs []NamedSuiteObservation) {
-	for _, ob := range obs {
+	for i, ob := range obs {
 		for hypoName := range s.nameToIdx {
 			like := ob.GetLikelihood(hypoName)
 			s.Mult(hypoName, like)
+		}
+		// renormalize every few iterations for numerical stability
+		if shouldRenormalize(i) {
+			s.Normalize()
 		}
 	}
 	s.Normalize()

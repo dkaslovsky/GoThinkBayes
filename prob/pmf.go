@@ -5,6 +5,13 @@ import (
 	"math"
 )
 
+const (
+	// float64EqualTol is the tolerance at which we consider float64s equal
+	float64EqualTol = 1e-5
+	// renormalize after this many consecutive updates
+	renormalizeEvery = 10.0
+)
+
 // PmfElement is a discrete element in a NumericPmf
 type PmfElement struct {
 	Val  float64
@@ -106,7 +113,7 @@ func (p *Pmf) Percentile(percentile float64) (float64, error) {
 	if len(p.prob) == 0 {
 		return 0, fmt.Errorf("cannot compute percentile of empty Pmf")
 	}
-	if math.Abs(p.sum-1.0) > float64EqualTol {
+	if !almostEqual(p.sum, 1.0, float64EqualTol) {
 		return 0, fmt.Errorf(
 			"cannot compute percentile of unnormalized Pmf (sum of elements [%f])",
 			p.sum,
@@ -160,11 +167,23 @@ func (s *Suite) Update(ob SuiteObservation) {
 
 // MultiUpdate updates the probabilities based on multiple observations
 func (s *Suite) MultiUpdate(obs []SuiteObservation) {
-	for _, ob := range obs {
+	for i, ob := range obs {
 		for hypoName := range s.prob {
 			like := ob.GetLikelihood(hypoName)
 			s.Mult(hypoName, like)
 		}
+		// renormalize every few iterations for numerical stability
+		if shouldRenormalize(i) {
+			s.Normalize()
+		}
 	}
 	s.Normalize()
+}
+
+func shouldRenormalize(iter int) bool {
+	return math.Mod(float64(iter), renormalizeEvery) == 0
+}
+
+func almostEqual(val1, val2, tol float64) bool {
+	return math.Abs(val1-val2) < tol
 }

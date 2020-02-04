@@ -27,31 +27,19 @@ func (o *euroObservation) GetLikelihood(hypo float64) float64 {
 }
 
 var (
-	heads = &euroObservation{"H"}
-	tails = &euroObservation{"T"}
+	heads = &euroObservation{side: "H"}
+	tails = &euroObservation{side: "T"}
 )
 
 // Euro runs the Euro problem
 func Euro() {
 
 	// a hypothesis represents that the probability of a heads is x%
-	// hypos := prob.Uniform(prob.NewBound(0, 100))
-	// s := prob.NewSuite(hypos...)
-	s := prob.NewSuite(
-		prob.NewPmfElement(0, 1),
-		prob.NewPmfElement(25, 1),
-		prob.NewPmfElement(50, 1),
-		prob.NewPmfElement(75, 1),
-		prob.NewPmfElement(100, 1),
-	)
-	s.Print()
+	hypos := prob.Uniform(prob.NewBound(0, 100))
+	s := prob.NewSuite(hypos...)
 
-	fmt.Println("mean", s.Mean())
-	p, err := s.Percentile(0.5)
-	fmt.Println("median", p, err)
-
-	nHeads := 20
-	nTails := 10
+	nHeads := 140
+	nTails := 110
 	obs := []prob.SuiteObservation{}
 	for i := 1; i <= nHeads; i++ {
 		obs = append(obs, heads)
@@ -61,42 +49,12 @@ func Euro() {
 	}
 
 	s.MultiUpdate(obs)
-	// for _, ob := range obs {
-	// 	s.Update(ob)
-	// }
 
-	fmt.Printf("\n\n\n")
-	s.Print()
-	fmt.Println("mean", s.Mean())
-	p, err = s.Percentile(0.5)
-	fmt.Println("median", p, err)
-
-	nHeads = 120
-	nTails = 100
-	obs2 := []prob.SuiteObservation{}
-	for i := 1; i <= nHeads; i++ {
-		obs2 = append(obs, heads)
+	fmt.Printf("Posterior mean: %0.2f\n", s.Mean())
+	median, err := s.Percentile(0.5)
+	if err != nil {
+		fmt.Printf("Unable to compute median due to error [%v]", err)
+		return
 	}
-	for i := 1; i <= nTails; i++ {
-		obs2 = append(obs, tails)
-	}
-
-	s.MultiUpdate(obs2)
-	// for _, ob := range obs2 {
-	// 	s.Update(ob)
-	// }
-
-	fmt.Printf("\n\n\n")
-	s.Print()
-	fmt.Println("mean", s.Mean())
-	p, err = s.Percentile(0.5)
-	fmt.Println("median", p, err)
-
-	// fmt.Printf("Posterior mean: %0.2f\n", s.Mean())
-	// median, err := s.Percentile(0.5)
-	// if err != nil {
-	// 	fmt.Printf("Unable to compute median due to error [%v]", err)
-	// 	return
-	// }
-	// fmt.Printf("Posterior median: %0.2f\n", median)
+	fmt.Printf("Posterior median: %0.2f\n", median)
 }

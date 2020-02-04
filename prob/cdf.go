@@ -2,12 +2,8 @@ package prob
 
 import (
 	"fmt"
-	"math"
 	"sort"
 )
-
-// float64EqualTol is the tolerance at which we consider float64s equal
-const float64EqualTol = 1e-5
 
 // Cdf is a cumulative distribution function
 type Cdf struct {
@@ -33,7 +29,7 @@ func NewCdf(p map[float64]float64) (c *Cdf, err error) {
 	}
 
 	// cumulative sum of input probabilities must be 1 for a proper cdf
-	if math.Abs(cumsum-1.0) > float64EqualTol {
+	if !almostEqual(cumsum, 1.0, float64EqualTol) {
 		return c, fmt.Errorf("cumulative sum of probabilities [%f] not equal to 1.0", cumsum)
 	}
 
