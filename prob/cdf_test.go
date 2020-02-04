@@ -58,6 +58,7 @@ func TestCdfPercentile(t *testing.T) {
 			require.Nil(t, err)
 
 			res, err := c.Percentile(test.percentile)
+
 			if test.shouldErr {
 				require.NotNil(t, err)
 				return
@@ -90,6 +91,7 @@ func TestSortKeys(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			keys := sortKeys(test.input)
+
 			assert.Equal(t, test.expected, keys)
 		})
 	}
@@ -117,6 +119,7 @@ func TestReverseMap(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			revMap := reverseMap(test.input)
+
 			assert.Equal(t, test.expected, revMap)
 		})
 	}

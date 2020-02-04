@@ -9,6 +9,7 @@ import (
 func TestNewNamedPmf(t *testing.T) {
 	t.Run("new Pmf", func(t *testing.T) {
 		p := NewNamedPmf()
+
 		assert.Empty(t, p.nameToIdx)
 		assert.Equal(t, 0.0, p.nextIdx)
 	})
@@ -85,6 +86,7 @@ func TestNamedMult(t *testing.T) {
 			origProb, foundInProb := p.pmf.prob[idx]
 
 			p.Mult(test.elem, test.multVal)
+
 			// test probability of specified element correctly multiplied
 			if found {
 				assert.True(t, foundInProb)
@@ -134,6 +136,7 @@ func TestNamedProb(t *testing.T) {
 			}
 
 			prob := p.Prob(test.elem)
+
 			assert.Equal(t, test.expectedProb, prob)
 		})
 	}
@@ -159,6 +162,7 @@ func TestNewNamedSuite(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			s := NewNamedSuite(test.elements...)
+
 			for _, elem := range test.elements {
 				assert.Contains(t, s.nameToIdx, elem.Name)
 				assert.Contains(t, s.pmf.prob, s.nameToIdx[elem.Name])
@@ -207,7 +211,9 @@ func TestNamedSuiteUpdate(t *testing.T) {
 		}
 
 		s := NewNamedSuite(namedSuiteUpdateHypos...)
+
 		s.Update(ob)
+
 		for elem, prob := range expectedPosterior {
 			if prob == 0 {
 				assert.Equal(t, 0.0, s.Prob(elem))
@@ -232,7 +238,9 @@ func TestNamedSuiteMultiUpdate(t *testing.T) {
 		}
 
 		s := NewNamedSuite(namedSuiteUpdateHypos...)
+
 		s.MultiUpdate(obs)
+
 		for elem, prob := range expectedPosterior {
 			if prob == 0 {
 				assert.Equal(t, 0.0, s.Prob(elem))

@@ -11,6 +11,7 @@ import (
 func TestNewPmf(t *testing.T) {
 	t.Run("new Pmf", func(t *testing.T) {
 		p := NewPmf()
+
 		assert.Empty(t, p.prob)
 		assert.Equal(t, 0.0, p.sum)
 	})
@@ -124,10 +125,15 @@ func TestNormalize(t *testing.T) {
 			}
 
 			p.Normalize()
+
 			for elem, prob := range p.prob {
 				assert.Equal(t, test.expectedProb[elem], prob)
 			}
-			assert.Equal(t, test.expectedSum, p.sum)
+			if test.expectedSum == 0 {
+				assert.Equal(t, test.expectedSum, p.sum)
+			} else {
+				assert.InEpsilon(t, test.expectedSum, p.sum, float64EqualTol)
+			}
 		})
 	}
 }
@@ -165,6 +171,7 @@ func TestMult(t *testing.T) {
 			for _, element := range test.elements {
 				p.Set(element)
 			}
+
 			// store original probability before mutating
 			origProb, found := p.prob[test.elem]
 
@@ -216,6 +223,7 @@ func TestProb(t *testing.T) {
 			}
 
 			prob := p.Prob(test.elem)
+
 			assert.Equal(t, test.expectedProb, prob)
 		})
 	}
@@ -249,6 +257,7 @@ func TestMean(t *testing.T) {
 			}
 
 			val := p.Mean()
+
 			assert.Equal(t, test.expectedMean, val)
 		})
 	}
@@ -294,7 +303,7 @@ func TestPmfPercentile(t *testing.T) {
 			expected:   0,
 			shouldErr:  true,
 		},
-		"unnormalized pmf with sum = 1": {
+		"unnormalized pmf with sum 1": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.02, 2: 0.03, 3: 0.04, 4: 0.01},
 				sum:  1,
@@ -344,6 +353,7 @@ func TestPmfPercentile(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			res, err := test.pmf.Percentile(test.percentile)
+
 			if test.shouldErr {
 				require.NotNil(t, err)
 				return
@@ -374,6 +384,7 @@ func TestNewSuite(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			s := NewSuite(test.elements...)
+
 			for _, elem := range test.elements {
 				assert.Contains(t, s.prob, elem.Val)
 			}
@@ -412,7 +423,9 @@ func TestSuiteUpdate(t *testing.T) {
 		}
 
 		s := NewSuite(suiteUpdateHypos...)
+
 		s.Update(ob)
+
 		for elem, prob := range expectedPosterior {
 			if prob == 0 {
 				assert.Equal(t, 0.0, s.prob[elem])
@@ -438,7 +451,9 @@ func TestSuiteMultiUpdate(t *testing.T) {
 		}
 
 		s := NewSuite(suiteUpdateHypos...)
+
 		s.MultiUpdate(obs)
+
 		for elem, prob := range expectedPosterior {
 			if prob == 0 {
 				assert.Equal(t, 0.0, s.prob[elem])
