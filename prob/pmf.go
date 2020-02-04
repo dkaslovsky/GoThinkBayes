@@ -28,6 +28,7 @@ type Pmf struct {
 func NewPmf() *Pmf {
 	return &Pmf{
 		prob: map[float64]float64{},
+		sum:  0,
 	}
 }
 
@@ -78,7 +79,7 @@ func (p *Pmf) Print() {
 	border := "----------"
 	fmt.Println(border)
 	for elem, prob := range p.prob {
-		fmt.Printf("%v: %0.2f\n", elem, prob)
+		fmt.Printf("%v: %f\n", elem, prob)
 	}
 	fmt.Println(border)
 	fmt.Println()

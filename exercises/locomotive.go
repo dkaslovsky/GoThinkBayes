@@ -115,4 +115,5 @@ func Locomotive() {
 	locomototiveUniformMultipleObservations()
 	locomotivePowerLawSingleObservation()
 	locomotivePowerLawMultipleObservation()
+	fmt.Println()
 }
