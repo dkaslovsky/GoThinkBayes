@@ -54,13 +54,11 @@ func TestSet(t *testing.T) {
 func TestNormalize(t *testing.T) {
 	tests := map[string]struct {
 		elements     []*PmfElement
-		sum          float64
 		expectedProb map[float64]float64
 		expectedSum  float64
 	}{
 		"empty Pmf": {
 			elements:     []*PmfElement{},
-			sum:          0,
 			expectedProb: map[float64]float64{},
 			expectedSum:  0,
 		},
@@ -68,7 +66,6 @@ func TestNormalize(t *testing.T) {
 			elements: []*PmfElement{
 				NewPmfElement(1, 100),
 			},
-			sum:          100,
 			expectedProb: map[float64]float64{1: 1},
 			expectedSum:  1,
 		},
@@ -79,7 +76,6 @@ func TestNormalize(t *testing.T) {
 				NewPmfElement(3, 1),
 				NewPmfElement(4, 1),
 			},
-			sum: 4,
 			expectedProb: map[float64]float64{
 				1: 0.25,
 				2: 0.25,
@@ -95,7 +91,6 @@ func TestNormalize(t *testing.T) {
 				NewPmfElement(3, 1),
 				NewPmfElement(4, 1),
 			},
-			sum: 8,
 			expectedProb: map[float64]float64{
 				1: 0.125,
 				2: 0.625,
@@ -106,12 +101,11 @@ func TestNormalize(t *testing.T) {
 		},
 		"Pmf with multiple elements and sum 0": {
 			elements: []*PmfElement{
-				NewPmfElement(1, 1),
-				NewPmfElement(2, 1),
-				NewPmfElement(3, 1),
-				NewPmfElement(4, 1),
+				NewPmfElement(1, 0),
+				NewPmfElement(2, 0),
+				NewPmfElement(3, 0),
+				NewPmfElement(4, 0),
 			},
-			sum: 0,
 			expectedProb: map[float64]float64{
 				1: 0,
 				2: 0,
@@ -128,8 +122,6 @@ func TestNormalize(t *testing.T) {
 			for _, element := range test.elements {
 				p.Set(element)
 			}
-			// overwrite p.sum for testing
-			p.sum = test.sum
 
 			p.Normalize()
 			for elem, prob := range p.prob {
