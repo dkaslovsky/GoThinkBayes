@@ -9,7 +9,7 @@ const (
 	// float64EqualTol is the tolerance at which we consider float64s equal
 	float64EqualTol = 1e-5
 	// renormalize after this many consecutive updates
-	renormalizeEvery = 10.0
+	renormalizeEvery = 10
 )
 
 // PmfElement is a discrete element in a NumericPmf
@@ -29,51 +29,43 @@ func NewPmfElement(val float64, prob float64) *PmfElement {
 // Pmf is a probability mass function
 type Pmf struct {
 	prob map[float64]float64
-	sum  float64
 }
 
 // NewPmf creates a new Pmf
 func NewPmf() *Pmf {
 	return &Pmf{
 		prob: map[float64]float64{},
-		sum:  0,
 	}
 }
 
 // Set sets the value of an element
 func (p *Pmf) Set(elem *PmfElement) {
 	p.prob[elem.Val] = elem.Prob
-	p.sum += elem.Prob
 }
 
 // Normalize normalizes the values of the Pmf to sum to 1
 func (p *Pmf) Normalize() {
-	if p.sum == 0 {
+	sum := 0.0
+	for _, prob := range p.prob {
+		sum += prob
+	}
+	if sum == 0 {
 		return
 	}
 
-	// maintain sum of normalized probabilities:
-	// in theory this should be identically 1 but multiplying small numbers
-	// (probabilities) leads to numerical instability for which we must account
-	newSum := 0.0
 	for elem := range p.prob {
-		newProb := p.prob[elem] / p.sum
-		p.prob[elem] = newProb
-		newSum += newProb
+		p.prob[elem] /= sum
 	}
-	p.sum = newSum
 }
 
 // Mult multiplies the probability associated with an element by the specified value
 func (p *Pmf) Mult(elem float64, multVal float64) {
-	curVal, ok := p.prob[elem]
-	if !ok {
+	if _, ok := p.prob[elem]; !ok {
 		// TODO: log a warning, print for now
 		fmt.Printf("attempting to modify nonexisting element [%v]\n", elem)
 		return
 	}
 	p.prob[elem] *= multVal
-	p.sum += curVal * (multVal - 1) // maintain sum by subtracting curVal and adding curVal*multVal
 }
 
 // Prob returns the probability associated with an element
@@ -113,12 +105,12 @@ func (p *Pmf) Percentile(percentile float64) (float64, error) {
 	if len(p.prob) == 0 {
 		return 0, fmt.Errorf("cannot compute percentile of empty Pmf")
 	}
-	if !almostEqual(p.sum, 1.0, float64EqualTol) {
-		return 0, fmt.Errorf(
-			"cannot compute percentile of unnormalized Pmf (sum of elements [%f])",
-			p.sum,
-		)
-	}
+	// if !almostEqual(p.sum, 1.0, float64EqualTol) {
+	// 	return 0, fmt.Errorf(
+	// 		"cannot compute percentile of unnormalized Pmf (sum of elements [%f])",
+	// 		p.sum,
+	// 	)
+	// }
 
 	total := 0.0
 	for _, elem := range sortKeys(p.prob) {
