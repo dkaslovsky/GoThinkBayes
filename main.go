@@ -24,4 +24,7 @@ func main() {
 
 	fmt.Println("Locomotive:")
 	exercises.Locomotive()
+
+	fmt.Println("Euro:")
+	exercises.Euro()
 }
