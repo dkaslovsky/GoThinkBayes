@@ -3,28 +3,43 @@ package prob
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// float64EqualTol is the tolerance at which we consider float64s equal
+const float64EqualTol = 1e-9
+
+func setupPmf(elems []*PmfElement) *Pmf {
+	p := NewPmf()
+	for _, elem := range elems {
+		p.Set(elem)
+	}
+	return p
+}
+
+func getSum(m map[float64]float64) float64 {
+	sum := 0.0
+	for _, p := range m {
+		sum += p
+	}
+	return sum
+}
 
 func TestNewPmf(t *testing.T) {
 	t.Run("new Pmf", func(t *testing.T) {
 		p := NewPmf()
 
 		assert.Empty(t, p.prob)
-		assert.Equal(t, 0.0, p.sum)
 	})
 }
 
 func TestSet(t *testing.T) {
 	tests := map[string]struct {
-		elements    []*PmfElement
-		expectedSum float64
+		elements []*PmfElement
 	}{
 		"single element": {
-			elements:    []*PmfElement{NewPmfElement(1, 1)},
-			expectedSum: 1,
+			elements: []*PmfElement{NewPmfElement(1, 1)},
 		},
 		"multiple elements": {
 			elements: []*PmfElement{
@@ -32,22 +47,17 @@ func TestSet(t *testing.T) {
 				NewPmfElement(2.1, 10.5),
 				NewPmfElement(3, 1.6),
 			},
-			expectedSum: 13.1,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewPmf()
-			for _, elem := range test.elements {
-				p.Set(elem)
-			}
+			p := setupPmf(test.elements)
 
 			for _, elem := range test.elements {
 				require.Contains(t, p.prob, elem.Val)
 				assert.Equal(t, elem.Prob, p.prob[elem.Val])
 			}
-			assert.Equal(t, test.expectedSum, p.sum)
 		})
 	}
 }
@@ -119,10 +129,7 @@ func TestNormalize(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewPmf()
-			for _, element := range test.elements {
-				p.Set(element)
-			}
+			p := setupPmf(test.elements)
 
 			p.Normalize()
 
@@ -130,9 +137,9 @@ func TestNormalize(t *testing.T) {
 				assert.Equal(t, test.expectedProb[elem], prob)
 			}
 			if test.expectedSum == 0 {
-				assert.Equal(t, test.expectedSum, p.sum)
+				assert.Equal(t, test.expectedSum, getSum(p.prob))
 			} else {
-				assert.InEpsilon(t, test.expectedSum, p.sum, float64EqualTol)
+				assert.InEpsilon(t, test.expectedSum, getSum(p.prob), float64EqualTol)
 			}
 		})
 	}
@@ -141,8 +148,8 @@ func TestNormalize(t *testing.T) {
 func TestMult(t *testing.T) {
 	tests := map[string]struct {
 		elements    []*PmfElement
-		elem        float64
-		multVal     float64
+		val         float64
+		multFactor  float64
 		expectedSum float64
 	}{
 		"element not in Pmf": {
@@ -150,43 +157,39 @@ func TestMult(t *testing.T) {
 				NewPmfElement(1, 0.5),
 				NewPmfElement(2, 0.5),
 			},
-			elem:        3,
-			multVal:     0.5,
-			expectedSum: 1,
+			val:        3,
+			multFactor: 0.5,
 		},
 		"element in Pmf": {
 			elements: []*PmfElement{
 				NewPmfElement(1, 0.5),
 				NewPmfElement(2, 0.5),
 			},
-			elem:        1,
-			multVal:     0.5,
-			expectedSum: 0.75,
+			val:        1,
+			multFactor: 0.5,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewPmf()
-			for _, element := range test.elements {
-				p.Set(element)
-			}
+			p := setupPmf(test.elements)
 
 			// store original probability before mutating
-			origProb, found := p.prob[test.elem]
+			origProb, found := p.prob[test.val]
 
-			p.Mult(test.elem, test.multVal)
+			p.Mult(test.val, test.multFactor)
 
+			// test probability of specified element correctly multiplied
+			if found {
+				assert.Equal(t, origProb*test.multFactor, p.prob[test.val])
+			}
+			// test other probabilities are unchanged
 			for _, element := range test.elements {
-				// test probability of specified element correctly multiplied
-				if element.Val == test.elem && found {
-					assert.Equal(t, origProb*test.multVal, p.prob[test.elem])
+				if element.Val == test.val {
 					continue
 				}
-				// test other probabilities are unchanged
 				assert.Equal(t, element.Prob, p.prob[element.Val])
 			}
-			assert.Equal(t, test.expectedSum, p.sum)
 		})
 	}
 }
@@ -194,7 +197,7 @@ func TestMult(t *testing.T) {
 func TestProb(t *testing.T) {
 	tests := map[string]struct {
 		elements     []*PmfElement
-		elem         float64
+		val          float64
 		expectedProb float64
 	}{
 		"elememt in Pmf": {
@@ -202,7 +205,7 @@ func TestProb(t *testing.T) {
 				NewPmfElement(1, 0.25),
 				NewPmfElement(2, 0.75),
 			},
-			elem:         1,
+			val:          1,
 			expectedProb: 0.25,
 		},
 		"elememt not in Pmf": {
@@ -210,19 +213,16 @@ func TestProb(t *testing.T) {
 				NewPmfElement(1, 0.25),
 				NewPmfElement(2, 0.75),
 			},
-			elem:         3,
+			val:          3,
 			expectedProb: 0,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewPmf()
-			for _, element := range test.elements {
-				p.Set(element)
-			}
+			p := setupPmf(test.elements)
 
-			prob := p.Prob(test.elem)
+			prob := p.Prob(test.val)
 
 			assert.Equal(t, test.expectedProb, prob)
 		})
@@ -251,14 +251,11 @@ func TestMean(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewPmf()
-			for _, element := range test.elements {
-				p.Set(element)
-			}
+			p := setupPmf(test.elements)
 
-			val := p.Mean()
+			m := p.Mean()
 
-			assert.Equal(t, test.expectedMean, val)
+			assert.Equal(t, test.expectedMean, m)
 		})
 	}
 }
@@ -279,7 +276,6 @@ func TestPmfPercentile(t *testing.T) {
 		"percentile less than 0": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
-				sum:  1,
 			},
 			percentile: -0.5,
 			expected:   0,
@@ -288,7 +284,6 @@ func TestPmfPercentile(t *testing.T) {
 		"percentile greater than 1": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
-				sum:  1,
 			},
 			percentile: 5,
 			expected:   0,
@@ -297,7 +292,6 @@ func TestPmfPercentile(t *testing.T) {
 		"unnormalized pmf": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.02, 2: 0.03, 3: 0.04, 4: 0.01},
-				sum:  0.1,
 			},
 			percentile: 0.5,
 			expected:   0,
@@ -306,7 +300,6 @@ func TestPmfPercentile(t *testing.T) {
 		"unnormalized pmf with sum 1": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.02, 2: 0.03, 3: 0.04, 4: 0.01},
-				sum:  1,
 			},
 			percentile: 0.5,
 			expected:   0,
@@ -315,7 +308,6 @@ func TestPmfPercentile(t *testing.T) {
 		"percentile 0": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
-				sum:  1,
 			},
 			percentile: 0,
 			expected:   1,
@@ -324,7 +316,6 @@ func TestPmfPercentile(t *testing.T) {
 		"percentile 1": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
-				sum:  1,
 			},
 			percentile: 1,
 			expected:   4,
@@ -333,7 +324,6 @@ func TestPmfPercentile(t *testing.T) {
 		"percentile 0.5": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
-				sum:  1,
 			},
 			percentile: 0.5,
 			expected:   2,
@@ -342,7 +332,6 @@ func TestPmfPercentile(t *testing.T) {
 		"percentile 0.51": {
 			pmf: &Pmf{
 				prob: map[float64]float64{1: 0.2, 2: 0.3, 3: 0.4, 4: 0.1},
-				sum:  1,
 			},
 			percentile: 0.51,
 			expected:   3,
@@ -388,7 +377,7 @@ func TestNewSuite(t *testing.T) {
 			for _, elem := range test.elements {
 				assert.Contains(t, s.prob, elem.Val)
 			}
-			assert.Equal(t, 1.0, s.sum)
+			assert.Equal(t, 1.0, getSum(s.prob))
 		})
 	}
 }

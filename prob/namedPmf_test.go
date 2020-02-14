@@ -4,7 +4,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func setupNamedPmf(elems []*NamedPmfElement) *NamedPmf {
+	p := NewNamedPmf()
+	for _, elem := range elems {
+		p.Set(elem)
+	}
+	return p
+}
 
 func TestNewNamedPmf(t *testing.T) {
 	t.Run("new Pmf", func(t *testing.T) {
@@ -33,14 +42,11 @@ func TestNamedSet(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewNamedPmf()
-			for _, elem := range test.elements {
-				p.Set(elem)
-			}
+			p := setupNamedPmf(test.elements)
 
 			for _, elem := range test.elements {
-				assert.Contains(t, p.nameToIdx, elem.Name)
-				assert.Contains(t, p.pmf.prob, p.nameToIdx[elem.Name])
+				require.Contains(t, p.nameToIdx, elem.Name)
+				require.Contains(t, p.pmf.prob, p.nameToIdx[elem.Name])
 				assert.Equal(t, elem.Prob, p.pmf.prob[p.nameToIdx[elem.Name]])
 			}
 		})
@@ -49,57 +55,49 @@ func TestNamedSet(t *testing.T) {
 
 func TestNamedMult(t *testing.T) {
 	tests := map[string]struct {
-		elements    []*NamedPmfElement
-		elem        string
-		multVal     float64
-		expectedSum float64
+		elements   []*NamedPmfElement
+		val        string
+		multFactor float64
 	}{
 		"element not in Pmf": {
 			elements: []*NamedPmfElement{
 				NewNamedPmfElement("a", 0.5),
 				NewNamedPmfElement("b", 0.5),
 			},
-			elem:        "c",
-			multVal:     0.5,
-			expectedSum: 1,
+			val:        "c",
+			multFactor: 0.5,
 		},
 		"element in Pmf": {
 			elements: []*NamedPmfElement{
 				NewNamedPmfElement("a", 0.5),
 				NewNamedPmfElement("b", 0.5),
 			},
-			elem:        "a",
-			multVal:     0.5,
-			expectedSum: 0.75,
+			val:        "a",
+			multFactor: 0.5,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewNamedPmf()
-			for _, element := range test.elements {
-				p.Set(element)
-			}
+			p := setupNamedPmf(test.elements)
 
-			var origProb float64
-			idx, found := p.nameToIdx[test.elem]
+			idx, found := p.nameToIdx[test.val]
 			origProb, foundInProb := p.pmf.prob[idx]
 
-			p.Mult(test.elem, test.multVal)
+			p.Mult(test.val, test.multFactor)
 
 			// test probability of specified element correctly multiplied
 			if found {
-				assert.True(t, foundInProb)
-				assert.Equal(t, origProb*test.multVal, p.pmf.prob[idx])
+				require.True(t, foundInProb)
+				assert.Equal(t, origProb*test.multFactor, p.pmf.prob[idx])
 			}
 			// test other probabilities are unchanged
 			for _, element := range test.elements {
-				if element.Name == test.elem {
+				if element.Name == test.val {
 					continue
 				}
 				assert.Equal(t, element.Prob, p.pmf.prob[p.nameToIdx[element.Name]])
 			}
-			assert.Equal(t, test.expectedSum, p.pmf.sum)
 		})
 	}
 }
@@ -107,7 +105,7 @@ func TestNamedMult(t *testing.T) {
 func TestNamedProb(t *testing.T) {
 	tests := map[string]struct {
 		elements     []*NamedPmfElement
-		elem         string
+		val          string
 		expectedProb float64
 	}{
 		"elememt in Pmf": {
@@ -115,7 +113,7 @@ func TestNamedProb(t *testing.T) {
 				NewNamedPmfElement("a", 0.25),
 				NewNamedPmfElement("b", 0.75),
 			},
-			elem:         "a",
+			val:          "a",
 			expectedProb: 0.25,
 		},
 		"elememt not in Pmf": {
@@ -123,19 +121,16 @@ func TestNamedProb(t *testing.T) {
 				NewNamedPmfElement("a", 0.25),
 				NewNamedPmfElement("b", 0.75),
 			},
-			elem:         "c",
+			val:          "c",
 			expectedProb: 0,
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			p := NewNamedPmf()
-			for _, element := range test.elements {
-				p.Set(element)
-			}
+			p := setupNamedPmf(test.elements)
 
-			prob := p.Prob(test.elem)
+			prob := p.Prob(test.val)
 
 			assert.Equal(t, test.expectedProb, prob)
 		})
@@ -167,7 +162,7 @@ func TestNewNamedSuite(t *testing.T) {
 				assert.Contains(t, s.nameToIdx, elem.Name)
 				assert.Contains(t, s.pmf.prob, s.nameToIdx[elem.Name])
 			}
-			assert.Equal(t, 1.0, s.pmf.sum)
+			assert.Equal(t, 1.0, getSum(s.pmf.prob))
 		})
 	}
 }

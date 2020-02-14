@@ -2,14 +2,8 @@ package prob
 
 import (
 	"fmt"
-	"math"
-)
-
-const (
-	// float64EqualTol is the tolerance at which we consider float64s equal
-	float64EqualTol = 1e-5
-	// renormalize after this many consecutive updates
-	renormalizeEvery = 10
+	"math/rand"
+	"time"
 )
 
 // PmfElement is a discrete element in a NumericPmf
@@ -45,10 +39,13 @@ func (p *Pmf) Set(elem *PmfElement) {
 
 // Normalize normalizes the values of the Pmf to sum to 1
 func (p *Pmf) Normalize() {
+	// recompute sum each time rather than maintain it for simplicity
+	// and to match ThinkBayes implementation
 	sum := 0.0
 	for _, prob := range p.prob {
 		sum += prob
 	}
+
 	if sum == 0 {
 		return
 	}
@@ -59,30 +56,30 @@ func (p *Pmf) Normalize() {
 }
 
 // Mult multiplies the probability associated with an element by the specified value
-func (p *Pmf) Mult(elem float64, multVal float64) {
-	if _, ok := p.prob[elem]; !ok {
+func (p *Pmf) Mult(val float64, multFactor float64) {
+	if _, ok := p.prob[val]; !ok {
 		// TODO: log a warning, print for now
-		fmt.Printf("attempting to modify nonexisting element [%v]\n", elem)
+		fmt.Printf("attempting to modify nonexisting value [%v]\n", val)
 		return
 	}
-	p.prob[elem] *= multVal
+	p.prob[val] *= multFactor
 }
 
 // Prob returns the probability associated with an element
-func (p *Pmf) Prob(elem float64) float64 {
-	val, ok := p.prob[elem]
+func (p *Pmf) Prob(val float64) float64 {
+	pr, ok := p.prob[val]
 	if !ok {
 		return 0
 	}
-	return val
+	return pr
 }
 
 // Print prints the Pmf
 func (p *Pmf) Print() {
 	border := "----------"
 	fmt.Println(border)
-	for elem, prob := range p.prob {
-		fmt.Printf("%v: %f\n", elem, prob)
+	for val, prob := range p.prob {
+		fmt.Printf("%v: %f\n", val, prob)
 	}
 	fmt.Println(border)
 	fmt.Println()
@@ -91,8 +88,8 @@ func (p *Pmf) Print() {
 // Mean computes the mean of the Pmf
 func (p *Pmf) Mean() float64 {
 	total := 0.0
-	for elem, prob := range p.prob {
-		total += elem * prob
+	for val, pr := range p.prob {
+		total += val * pr
 	}
 	return total
 }
@@ -105,18 +102,12 @@ func (p *Pmf) Percentile(percentile float64) (float64, error) {
 	if len(p.prob) == 0 {
 		return 0, fmt.Errorf("cannot compute percentile of empty Pmf")
 	}
-	// if !almostEqual(p.sum, 1.0, float64EqualTol) {
-	// 	return 0, fmt.Errorf(
-	// 		"cannot compute percentile of unnormalized Pmf (sum of elements [%f])",
-	// 		p.sum,
-	// 	)
-	// }
 
 	total := 0.0
-	for _, elem := range sortKeys(p.prob) {
-		total += p.prob[elem]
+	for _, val := range sortKeys(p.prob) {
+		total += p.prob[val]
 		if total >= percentile {
-			return elem, nil
+			return val, nil
 		}
 	}
 
@@ -125,7 +116,8 @@ func (p *Pmf) Percentile(percentile float64) (float64, error) {
 
 // MakeCdf transforms a Pmf to a Cdf
 func (p *Pmf) MakeCdf() (*Cdf, error) {
-	return NewCdf(p.prob)
+	c, err := NewCdf(p.prob)
+	return c, err
 }
 
 // SuiteObservation is the interface that must be satisfied to update probabilities
@@ -159,23 +151,15 @@ func (s *Suite) Update(ob SuiteObservation) {
 
 // MultiUpdate updates the probabilities based on multiple observations
 func (s *Suite) MultiUpdate(obs []SuiteObservation) {
-	for i, ob := range obs {
+	// iterate elements of obs in random order for numerical stability: avoids long runs
+	// of one observation that push the probability of the others to values very close to zero
+	rand.Seed(time.Now().UnixNano())
+	for _, i := range rand.Perm(len(obs)) {
+		ob := obs[i]
 		for hypoName := range s.prob {
 			like := ob.GetLikelihood(hypoName)
 			s.Mult(hypoName, like)
 		}
-		// renormalize every few iterations for numerical stability
-		if shouldRenormalize(i) {
-			s.Normalize()
-		}
 	}
 	s.Normalize()
-}
-
-func shouldRenormalize(iter int) bool {
-	return math.Mod(float64(iter), renormalizeEvery) == 0
-}
-
-func almostEqual(val1, val2, tol float64) bool {
-	return math.Abs(val1-val2) < tol
 }

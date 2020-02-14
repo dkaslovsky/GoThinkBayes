@@ -7,36 +7,39 @@ import (
 
 // Cdf is a cumulative distribution function
 type Cdf struct {
-	elemsToIdx map[float64]int
-	idxToelems map[int]float64
-	prob       []float64
+	valToIdx map[float64]int
+	idxToVal map[int]float64
+	prob     []float64
 }
 
 // NewCdf creates a new Cdf
 func NewCdf(p map[float64]float64) (c *Cdf, err error) {
 	if len(p) == 0 {
-		return c, fmt.Errorf("cannot compute cdf from empty input map")
+		return c, fmt.Errorf("cannot compute cdf from empty input")
 	}
 
-	elems := map[float64]int{}
-	prob := []float64{}
+	sum := 0.0
+	for _, prob := range p {
+		sum += prob
+	}
+	if sum == 0 {
+		return c, fmt.Errorf("cannot compute cdf when all elements have probability 0")
+	}
 
+	valToIdx := map[float64]int{}
+	prob := []float64{}
 	cumsum := 0.0
-	for i, key := range sortKeys(p) {
-		elems[key] = i
-		cumsum += p[key]
+
+	for i, val := range sortKeys(p) {
+		valToIdx[val] = i
+		cumsum += p[val] / sum
 		prob = append(prob, cumsum)
 	}
 
-	// cumulative sum of input probabilities must be 1 for a proper cdf
-	if !almostEqual(cumsum, 1.0, float64EqualTol) {
-		return c, fmt.Errorf("cumulative sum of probabilities [%f] not equal to 1.0", cumsum)
-	}
-
 	c = &Cdf{
-		elemsToIdx: elems,
-		idxToelems: reverseMap(elems),
-		prob:       prob,
+		valToIdx: valToIdx,
+		idxToVal: reverseMap(valToIdx),
+		prob:     prob,
 	}
 	return c, nil
 }
@@ -49,7 +52,7 @@ func (c *Cdf) Percentile(p float64) (float64, error) {
 	i := sort.Search(len(c.prob), func(i int) bool {
 		return c.prob[i] >= p
 	})
-	return c.idxToelems[i], nil
+	return c.idxToVal[i], nil
 }
 
 func sortKeys(p map[float64]float64) []float64 {

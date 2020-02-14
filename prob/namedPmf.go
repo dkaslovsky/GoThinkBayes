@@ -2,6 +2,8 @@ package prob
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 // NamedPmfElement is a discrete element in a NamedPmf
@@ -47,19 +49,19 @@ func (p *NamedPmf) Normalize() {
 }
 
 // Mult multiplies the probability associated with an element by the specified value
-func (p *NamedPmf) Mult(elem string, multVal float64) {
-	idx, ok := p.nameToIdx[elem]
+func (p *NamedPmf) Mult(name string, multFactor float64) {
+	idx, ok := p.nameToIdx[name]
 	if !ok {
 		// TODO: log a warning, print for now
-		fmt.Printf("Attempting to modify nonexisting element [%s]\n", elem)
+		fmt.Printf("Attempting to modify nonexisting element [%s]\n", name)
 		return
 	}
-	p.pmf.Mult(idx, multVal)
+	p.pmf.Mult(idx, multFactor)
 }
 
-// Prob returns the probability associated with an element
-func (p *NamedPmf) Prob(elem string) float64 {
-	idx, ok := p.nameToIdx[elem]
+// Prob returns the probability associated with a name
+func (p *NamedPmf) Prob(name string) float64 {
+	idx, ok := p.nameToIdx[name]
 	if !ok {
 		return 0
 	}
@@ -70,9 +72,9 @@ func (p *NamedPmf) Prob(elem string) float64 {
 func (p *NamedPmf) Print() {
 	border := "----------"
 	fmt.Println(border)
-	for elem := range p.nameToIdx {
-		prob := p.Prob(elem)
-		fmt.Printf("%s: %0.2f\n", elem, prob)
+	for name := range p.nameToIdx {
+		pr := p.Prob(name)
+		fmt.Printf("%s: %0.2f\n", name, pr)
 	}
 	fmt.Println(border)
 	fmt.Println()
@@ -109,14 +111,14 @@ func (s *NamedSuite) Update(ob NamedSuiteObservation) {
 
 // MultiUpdate updates the probabilities based on multiple observations
 func (s *NamedSuite) MultiUpdate(obs []NamedSuiteObservation) {
-	for i, ob := range obs {
+	// iterate elements of obs in random order for numerical stability: avoids long runs
+	// of one observation that push the probability of the others to values very close to zero
+	rand.Seed(time.Now().UnixNano())
+	for _, i := range rand.Perm(len(obs)) {
+		ob := obs[i]
 		for hypoName := range s.nameToIdx {
 			like := ob.GetLikelihood(hypoName)
 			s.Mult(hypoName, like)
-		}
-		// renormalize every few iterations for numerical stability
-		if shouldRenormalize(i) {
-			s.Normalize()
 		}
 	}
 	s.Normalize()
