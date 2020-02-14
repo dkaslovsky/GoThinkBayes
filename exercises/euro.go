@@ -17,11 +17,12 @@ type euroObservation struct {
 
 // Getlikelihood is the likelihood function for the Euro problem
 func (o *euroObservation) GetLikelihood(hypo float64) float64 {
+	hProb := hypo / 100
 	if o.side == "H" {
-		return hypo / 100
+		return hProb
 	}
 	if o.side == "T" {
-		return 1.0 - (hypo / 100)
+		return 1.0 - hProb
 	}
 	return 0
 }
