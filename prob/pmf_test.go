@@ -365,6 +365,59 @@ func TestPmfPercentile(t *testing.T) {
 	}
 }
 
+func TestMaximumLikelihood(t *testing.T) {
+	tests := map[string]struct {
+		elements  []*PmfElement
+		expected  float64
+		shouldErr bool
+	}{
+		"empty Pmf": {
+			elements:  []*PmfElement{},
+			expected:  0,
+			shouldErr: true,
+		},
+		"single elememt in Pmf": {
+			elements: []*PmfElement{
+				NewPmfElement(15, 1),
+			},
+			expected:  15,
+			shouldErr: false,
+		},
+		"multiple elememts in Pmf": {
+			elements: []*PmfElement{
+				NewPmfElement(1, 0.1),
+				NewPmfElement(2, 0.7),
+				NewPmfElement(3, 0.2),
+			},
+			expected:  2,
+			shouldErr: false,
+		},
+		"multiple elememts in Pmf with zero probabilities": {
+			elements: []*PmfElement{
+				NewPmfElement(1, 0),
+				NewPmfElement(2, 0),
+				NewPmfElement(3, 0),
+			},
+			expected:  0,
+			shouldErr: true,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			p := setupPmf(test.elements)
+
+			mle, err := p.MaximumLikelihood()
+
+			if test.shouldErr {
+				require.NotNil(t, err)
+				return
+			}
+			assert.Equal(t, test.expected, mle)
+		})
+	}
+}
+
 func TestNewSuite(t *testing.T) {
 	tests := map[string]struct {
 		elements []*PmfElement

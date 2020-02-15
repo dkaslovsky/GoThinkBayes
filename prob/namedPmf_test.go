@@ -137,6 +137,59 @@ func TestNamedProb(t *testing.T) {
 	}
 }
 
+func TestNamedMaximumLikelihood(t *testing.T) {
+	tests := map[string]struct {
+		elements  []*NamedPmfElement
+		expected  string
+		shouldErr bool
+	}{
+		"empty Pmf": {
+			elements:  []*NamedPmfElement{},
+			expected:  "",
+			shouldErr: true,
+		},
+		"single elememt in Pmf": {
+			elements: []*NamedPmfElement{
+				NewNamedPmfElement("a", 1),
+			},
+			expected:  "a",
+			shouldErr: false,
+		},
+		"multiple elememts in Pmf": {
+			elements: []*NamedPmfElement{
+				NewNamedPmfElement("a", 0.1),
+				NewNamedPmfElement("b", 0.7),
+				NewNamedPmfElement("c", 0.2),
+			},
+			expected:  "b",
+			shouldErr: false,
+		},
+		"multiple elememts in Pmf with zero probabilities": {
+			elements: []*NamedPmfElement{
+				NewNamedPmfElement("a", 0),
+				NewNamedPmfElement("b", 0),
+				NewNamedPmfElement("c", 0),
+			},
+			expected:  "",
+			shouldErr: true,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			p := setupNamedPmf(test.elements)
+
+			mle, err := p.MaximumLikelihood()
+
+			if test.shouldErr {
+				require.NotNil(t, err)
+				return
+			}
+			assert.Equal(t, test.expected, mle)
+		})
+	}
+}
+
 func TestNewNamedSuite(t *testing.T) {
 	tests := map[string]struct {
 		elements []*NamedPmfElement

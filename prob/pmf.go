@@ -118,6 +118,24 @@ func (p *Pmf) Percentile(percentile float64) (float64, error) {
 	return 0, fmt.Errorf("unable to compute percentile, potentially unnormalized Pmf")
 }
 
+// MaximumLikelihood returns the value with the highest probability
+func (p *Pmf) MaximumLikelihood() (maxVal float64, err error) {
+	maxProb := 0.0
+	for val, prob := range p.prob {
+		if prob > maxProb {
+			maxProb = prob
+			maxVal = val
+		}
+	}
+
+	if maxProb == 0 {
+		return maxVal, fmt.Errorf(
+			"unable to compute maximum likelihood from empty pmf or all zero probabilities",
+		)
+	}
+	return maxVal, nil
+}
+
 // MakeCdf transforms a Pmf to a Cdf
 func (p *Pmf) MakeCdf() (*Cdf, error) {
 	c, err := NewCdf(p.prob)

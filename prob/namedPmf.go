@@ -80,6 +80,25 @@ func (p *NamedPmf) Print() {
 	fmt.Println()
 }
 
+// MaximumLikelihood returns the value with the highest probability
+func (p *NamedPmf) MaximumLikelihood() (maxVal string, err error) {
+	maxProb := 0.0
+	for name, idx := range p.nameToIdx {
+		prob := p.pmf.prob[idx]
+		if prob > maxProb {
+			maxProb = prob
+			maxVal = name
+		}
+	}
+
+	if maxProb == 0 {
+		return maxVal, fmt.Errorf(
+			"unable to compute maximum likelihood from empty pmf or all zero probabilities",
+		)
+	}
+	return maxVal, nil
+}
+
 // NamedSuiteObservation is the interface that must be satisfied to update probabilities
 type NamedSuiteObservation interface {
 	GetLikelihood(string) float64

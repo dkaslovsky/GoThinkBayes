@@ -51,6 +51,12 @@ func Euro() {
 
 	s.MultiUpdate(obs)
 
+	mle, err := s.MaximumLikelihood()
+	if err != nil {
+		fmt.Printf("Unable to compute maximum likelihood due to error [%v]", err)
+		return
+	}
+	fmt.Printf("Posterior maximum likelihood estimate: %0.2f\n", mle)
 	mean, err := s.Mean()
 	if err != nil {
 		fmt.Printf("Unable to compute mean due to error [%v]", err)
