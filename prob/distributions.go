@@ -1,6 +1,9 @@
 package prob
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // TODO: consider noninteger bounds (floating point precision problem for keys underlying map...)
 
@@ -34,4 +37,37 @@ func PowerLaw(b *Bound, alpha float64) (elems []*PmfElement) {
 		elems = append(elems, NewPmfElement(n, math.Pow(n, a)))
 	}
 	return elems
+}
+
+type percentileGetter interface {
+	Percentile(float64) (float64, error)
+}
+
+// CredibleInterval computes the credible interval of specified length
+func CredibleInterval(p percentileGetter, len float64) (lower float64, upper float64, err error) {
+	if len <= 0 || len > 100 {
+		return lower, upper, fmt.Errorf("cannot compute CI of length [%f]", len)
+	}
+
+	lowerP, upperP := getCredibleIntervalPercentiles(len)
+
+	lower, err = p.Percentile(lowerP)
+	if err != nil {
+		return lower, upper, fmt.Errorf(
+			"error computing credible interval of length [%f]: %v", len, err,
+		)
+	}
+	upper, err = p.Percentile(upperP)
+	if err != nil {
+		return lower, upper, fmt.Errorf(
+			"error computing credible interval of length [%f]: %v", len, err,
+		)
+	}
+	return lower, upper, nil
+}
+
+func getCredibleIntervalPercentiles(len float64) (lower float64, upper float64) {
+	lowerP := (100.0 - len) / 2.0 / 100
+	upperP := 1.0 - lowerP
+	return lowerP, upperP
 }

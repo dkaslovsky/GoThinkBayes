@@ -57,16 +57,26 @@ func Euro() {
 		return
 	}
 	fmt.Printf("Posterior maximum likelihood estimate: %0.2f\n", mle)
+
 	mean, err := s.Mean()
 	if err != nil {
 		fmt.Printf("Unable to compute mean due to error [%v]", err)
 		return
 	}
 	fmt.Printf("Posterior mean: %0.2f\n", mean)
+
 	median, err := s.Percentile(0.5)
 	if err != nil {
 		fmt.Printf("Unable to compute median due to error [%v]", err)
 		return
 	}
 	fmt.Printf("Posterior median: %0.2f\n", median)
+
+	ci := 90.0
+	lower, upper, err := prob.CredibleInterval(s, ci)
+	if err != nil {
+		fmt.Printf("Unable to compute %0.2f%%-CI due to error [%v]", ci, err)
+		return
+	}
+	fmt.Printf("%0.2f%%-CI: (%0.2f, %0.2f)", ci, lower, upper)
 }
