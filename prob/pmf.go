@@ -86,12 +86,16 @@ func (p *Pmf) Print() {
 }
 
 // Mean computes the mean of the Pmf
-func (p *Pmf) Mean() float64 {
+func (p *Pmf) Mean() (float64, error) {
+	if len(p.prob) == 0 {
+		return 0.0, fmt.Errorf("unable to compute mean of empty pmf")
+	}
+
 	total := 0.0
 	for val, pr := range p.prob {
 		total += val * pr
 	}
-	return total
+	return total, nil
 }
 
 // Percentile computes the specified percentile of the distribution

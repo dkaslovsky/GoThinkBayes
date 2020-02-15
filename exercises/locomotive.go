@@ -36,7 +36,12 @@ func locomototiveUniformSingleObservation() {
 		s := prob.NewSuite(hypos...)
 		s.Update(newLocomotiveObservation(60))
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, s.Mean())
+		mean, err := s.Mean()
+		if err != nil {
+			fmt.Printf("Unable to compute mean due to error [%v]", err)
+			continue
+		}
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, mean)
 	}
 }
 
@@ -54,7 +59,12 @@ func locomototiveUniformMultipleObservations() {
 		}
 		s.MultiUpdate(obs)
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, s.Mean())
+		mean, err := s.Mean()
+		if err != nil {
+			fmt.Printf("Unable to compute mean due to error [%v]", err)
+			continue
+		}
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, mean)
 	}
 }
 
@@ -67,7 +77,12 @@ func locomotivePowerLawSingleObservation() {
 		s := prob.NewSuite(hypos...)
 		s.Update(newLocomotiveObservation(60))
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, s.Mean())
+		mean, err := s.Mean()
+		if err != nil {
+			fmt.Printf("Unable to compute mean due to error [%v]", err)
+			continue
+		}
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f\n", bound.High, mean)
 	}
 }
 
@@ -86,7 +101,12 @@ func locomotivePowerLawMultipleObservation() {
 		}
 		s.MultiUpdate(obs)
 
-		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.High, s.Mean())
+		mean, err := s.Mean()
+		if err != nil {
+			fmt.Printf("Unable to compute mean due to error [%v]", err)
+			continue
+		}
+		fmt.Printf("Upper bound: %d, Posterior mean: %0.2f ", bound.High, mean)
 
 		// compute 90% credible interval from cdf
 		cdf, err := s.MakeCdf()

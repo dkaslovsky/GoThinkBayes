@@ -51,7 +51,12 @@ func Euro() {
 
 	s.MultiUpdate(obs)
 
-	fmt.Printf("Posterior mean: %0.2f\n", s.Mean())
+	mean, err := s.Mean()
+	if err != nil {
+		fmt.Printf("Unable to compute mean due to error [%v]", err)
+		return
+	}
+	fmt.Printf("Posterior mean: %0.2f\n", mean)
 	median, err := s.Percentile(0.5)
 	if err != nil {
 		fmt.Printf("Unable to compute median due to error [%v]", err)

@@ -233,12 +233,19 @@ func TestMean(t *testing.T) {
 	tests := map[string]struct {
 		elements     []*PmfElement
 		expectedMean float64
+		shouldErr    bool
 	}{
+		"empty Pmf": {
+			elements:     []*PmfElement{},
+			expectedMean: 0,
+			shouldErr:    true,
+		},
 		"single elememt in Pmf": {
 			elements: []*PmfElement{
 				NewPmfElement(1, 1),
 			},
 			expectedMean: 1,
+			shouldErr:    false,
 		},
 		"multiple elememts in Pmf": {
 			elements: []*PmfElement{
@@ -246,6 +253,7 @@ func TestMean(t *testing.T) {
 				NewPmfElement(2, 0.75),
 			},
 			expectedMean: 1.75,
+			shouldErr:    false,
 		},
 	}
 
@@ -253,8 +261,12 @@ func TestMean(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			p := setupPmf(test.elements)
 
-			m := p.Mean()
+			m, err := p.Mean()
 
+			if test.shouldErr {
+				require.NotNil(t, err)
+				return
+			}
 			assert.Equal(t, test.expectedMean, m)
 		})
 	}
