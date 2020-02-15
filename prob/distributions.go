@@ -29,6 +29,29 @@ func Uniform(b *Bound) (elems []*PmfElement) {
 	return elems
 }
 
+// Triangle generates PmfElements representing a triangle distribution
+func Triangle(b *Bound) (elems []*PmfElement) {
+	l := b.High - b.Low + 1 // interval length
+	mdpt := l / 2
+	isEven := math.Mod(float64(l), 2) == 0
+
+	var prob int
+	for i := 0; i < l; i++ {
+		switch {
+		case i < mdpt:
+			prob = i
+		case i > mdpt:
+			prob = l - i - 1
+		case i == mdpt && isEven:
+			prob = i - 1
+		default: // i == mdpt && !isEven:
+			prob = i
+		}
+		elems = append(elems, NewPmfElement(float64(b.Low+i), float64(prob)))
+	}
+	return elems
+}
+
 // PowerLaw generates PmfElements representing a power law distribution
 func PowerLaw(b *Bound, alpha float64) (elems []*PmfElement) {
 	a := -alpha

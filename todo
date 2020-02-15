@@ -1,5 +1,5 @@
 pkg
-tests: NewCDF
+tests: NewCDF, distributions?
 plots
 cli / flags
 logging vs printing / todos
