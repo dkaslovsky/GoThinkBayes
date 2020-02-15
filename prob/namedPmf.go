@@ -128,8 +128,8 @@ func (s *NamedSuite) Update(ob NamedSuiteObservation) {
 	s.Normalize()
 }
 
-// MultiUpdate updates the probabilities based on multiple observations
-func (s *NamedSuite) MultiUpdate(obs []NamedSuiteObservation) {
+// UpdateSet updates the probabilities based on multiple observations
+func (s *NamedSuite) UpdateSet(obs []NamedSuiteObservation) {
 	// iterate elements of obs in random order for numerical stability: avoids long runs
 	// of one observation that push the probability of the others to values very close to zero
 	rand.Seed(time.Now().UnixNano())

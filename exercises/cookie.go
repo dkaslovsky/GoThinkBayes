@@ -73,7 +73,7 @@ func Cookie() {
 		&cookieObservation{name: "vanilla"},
 		&cookieObservation{name: "chocolate"},
 	}
-	s.MultiUpdate(obs)
+	s.UpdateSet(obs)
 
 	s.Print()
 }

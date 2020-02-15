@@ -93,7 +93,7 @@ func MMs() {
 		&mmObservation{bag: "bag 1", color: "yellow"},
 		&mmObservation{bag: "bag 2", color: "green"},
 	}
-	s.MultiUpdate(obs)
+	s.UpdateSet(obs)
 
 	s.Print()
 }

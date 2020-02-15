@@ -57,7 +57,7 @@ func locomototiveUniformMultipleObservations() {
 			newLocomotiveObservation(30),
 			newLocomotiveObservation(90),
 		}
-		s.MultiUpdate(obs)
+		s.UpdateSet(obs)
 
 		mean, err := s.Mean()
 		if err != nil {
@@ -99,7 +99,7 @@ func locomotivePowerLawMultipleObservation() {
 			newLocomotiveObservation(30),
 			newLocomotiveObservation(90),
 		}
-		s.MultiUpdate(obs)
+		s.UpdateSet(obs)
 
 		mean, err := s.Mean()
 		if err != nil {

@@ -272,8 +272,8 @@ func TestNamedSuiteUpdate(t *testing.T) {
 	})
 }
 
-func TestNamedSuiteMultiUpdate(t *testing.T) {
-	t.Run("named suite multiupdate", func(t *testing.T) {
+func TestNamedSuiteUpdateSet(t *testing.T) {
+	t.Run("named suite UpdateSet", func(t *testing.T) {
 
 		obs := []NamedSuiteObservation{
 			&namedSuiteTestObservation{"foo"},
@@ -287,7 +287,7 @@ func TestNamedSuiteMultiUpdate(t *testing.T) {
 
 		s := NewNamedSuite(namedSuiteUpdateHypos...)
 
-		s.MultiUpdate(obs)
+		s.UpdateSet(obs)
 
 		for elem, prob := range expectedPosterior {
 			if prob == 0 {

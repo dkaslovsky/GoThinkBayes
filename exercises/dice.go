@@ -42,7 +42,7 @@ func Dice() {
 		&diceObservation{5},
 		&diceObservation{4},
 	}
-	s.MultiUpdate(obs)
+	s.UpdateSet(obs)
 
 	s.Print()
 }

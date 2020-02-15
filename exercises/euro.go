@@ -44,7 +44,7 @@ func generateObs(nHeads, nTails int) (obs []prob.SuiteObservation) {
 // where a hypothesis represents that the probability of a heads is x%
 func RunEuro(hypos []*prob.PmfElement, obs []prob.SuiteObservation) {
 	s := prob.NewSuite(hypos...)
-	s.MultiUpdate(obs)
+	s.UpdateSet(obs)
 	report(s)
 }
 
