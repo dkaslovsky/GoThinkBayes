@@ -2,6 +2,7 @@ package exercises
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/dkaslovsky/GoThinkBayes/prob"
 )
@@ -15,36 +16,54 @@ type euroObservation struct {
 	side string
 }
 
-// Getlikelihood is the likelihood function for the Euro problem
+// Getlikelihood is the likelihood function for the Euro problem using euroObservation
 func (o *euroObservation) GetLikelihood(hypo float64) float64 {
-	hProb := hypo / 100
+	pHeads := hypo / 100
 	if o.side == "H" {
-		return hProb
+		return pHeads
 	}
 	if o.side == "T" {
-		return 1.0 - hProb
+		return 1.0 - pHeads
 	}
 	return 0
 }
 
-func generateObs(nHeads, nTails int) (obs []prob.SuiteObservation) {
+func generateObs(nHeads, nTails int64) (obs []prob.SuiteObservation) {
 	heads := &euroObservation{side: "H"}
 	tails := &euroObservation{side: "T"}
 
-	for i := 1; i <= nHeads; i++ {
+	var i int64
+	for i = 1; i <= nHeads; i++ {
 		obs = append(obs, heads)
 	}
-	for i := 1; i <= nTails; i++ {
+	for i = 1; i <= nTails; i++ {
 		obs = append(obs, tails)
 	}
 	return obs
 }
 
-// RunEuro runs the Euro problem for a given set of hypotheses and observations,
+// runEuro runs the Euro problem for a given set of hypotheses and observations,
 // where a hypothesis represents that the probability of a heads is x%
-func RunEuro(hypos []*prob.PmfElement, obs []prob.SuiteObservation) {
+func runEuro(hypos []*prob.PmfElement, obs []prob.SuiteObservation) {
 	s := prob.NewSuite(hypos...)
 	s.UpdateSet(obs)
+	report(s)
+}
+
+type euroMultiObservation struct {
+	nHeads int64
+	nTails int64
+}
+
+// Getlikelihood is the likelihood function for the Euro problem using euroMultiObservation
+func (o *euroMultiObservation) GetLikelihood(hypo float64) float64 {
+	pHeads := hypo / 100
+	return math.Pow(pHeads, float64(o.nHeads)) * math.Pow(1-pHeads, float64(o.nTails))
+}
+
+func runEuroMultiObservation(hypos []*prob.PmfElement, ob *euroMultiObservation) {
+	s := prob.NewSuite(hypos...)
+	s.Update(ob)
 	report(s)
 }
 
@@ -82,15 +101,23 @@ func report(s *prob.Suite) {
 // Euro runs the Euro problem
 func Euro() {
 
+	var nHeads int64 = 140
+	var nTails int64 = 110
+
 	uniformPrior := prob.Uniform(prob.NewBound(0, 100))
 	trianglePrior := prob.Triangle(prob.NewBound(0, 100))
 
-	nHeads, nTails := 140, 110
+	// run Euro problem using an observation for each flip
 	obs := generateObs(nHeads, nTails)
-
 	fmt.Println("Uniform Prior:")
-	RunEuro(uniformPrior, obs)
-
+	runEuro(uniformPrior, obs)
 	fmt.Println("Triangle Prior:")
-	RunEuro(trianglePrior, obs)
+	runEuro(trianglePrior, obs)
+
+	// run Euro problem using a multiobservationn to capture the results of multiple flips
+	ob := &euroMultiObservation{nHeads: nHeads, nTails: nTails}
+	fmt.Println("Uniform Prior (multiObservation):")
+	runEuroMultiObservation(uniformPrior, ob)
+	fmt.Println("Triangle Prior (multiObservation):")
+	runEuroMultiObservation(trianglePrior, ob)
 }
