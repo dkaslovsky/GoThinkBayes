@@ -44,30 +44,30 @@ type percentileGetter interface {
 }
 
 // CredibleInterval computes the credible interval of specified length
-func CredibleInterval(p percentileGetter, len float64) (lower float64, upper float64, err error) {
-	if len <= 0 || len > 100 {
-		return lower, upper, fmt.Errorf("cannot compute CI of length [%f]", len)
+func CredibleInterval(p percentileGetter, l float64) (lower float64, upper float64, err error) {
+	if l <= 0 || l > 100 {
+		return lower, upper, fmt.Errorf("cannot compute CI of length [%f]", l)
 	}
 
-	lowerP, upperP := getCredibleIntervalPercentiles(len)
+	lowerP, upperP := getCredibleIntervalPercentiles(l)
 
 	lower, err = p.Percentile(lowerP)
 	if err != nil {
 		return lower, upper, fmt.Errorf(
-			"error computing credible interval of length [%f]: %v", len, err,
+			"error computing credible interval of length [%f]: %v", l, err,
 		)
 	}
 	upper, err = p.Percentile(upperP)
 	if err != nil {
 		return lower, upper, fmt.Errorf(
-			"error computing credible interval of length [%f]: %v", len, err,
+			"error computing credible interval of length [%f]: %v", l, err,
 		)
 	}
 	return lower, upper, nil
 }
 
-func getCredibleIntervalPercentiles(len float64) (lower float64, upper float64) {
-	lowerP := (100.0 - len) / 2.0 / 100
+func getCredibleIntervalPercentiles(l float64) (lower float64, upper float64) {
+	lowerP := (100.0 - l) / 2.0 / 100
 	upperP := 1.0 - lowerP
 	return lowerP, upperP
 }

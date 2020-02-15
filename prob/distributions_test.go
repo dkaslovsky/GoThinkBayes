@@ -8,27 +8,27 @@ import (
 
 func TestGetCredibleIntervalPercentiles(t *testing.T) {
 	tests := map[string]struct {
-		len           float64
+		l             float64
 		expectedLower float64
 		expectedUpper float64
 	}{
 		"len = 100": {
-			len:           100,
+			l:             100,
 			expectedLower: 0,
 			expectedUpper: 1,
 		},
 		"len = 1": {
-			len:           1,
+			l:             1,
 			expectedLower: 0.495,
 			expectedUpper: 0.505,
 		},
 		"len has no decimal": {
-			len:           90,
+			l:             90,
 			expectedLower: 0.05,
 			expectedUpper: 0.95,
 		},
 		"len has decimal": {
-			len:           90.2,
+			l:             90.2,
 			expectedLower: 0.049,
 			expectedUpper: 0.951,
 		},
@@ -36,7 +36,7 @@ func TestGetCredibleIntervalPercentiles(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			lower, upper := getCredibleIntervalPercentiles(test.len)
+			lower, upper := getCredibleIntervalPercentiles(test.l)
 
 			if test.expectedLower == 0 {
 				assert.Equal(t, 0.0, lower)
