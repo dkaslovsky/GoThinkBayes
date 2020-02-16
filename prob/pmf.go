@@ -134,6 +134,11 @@ func (p *Pmf) MaximumLikelihood() (maxVal float64, err error) {
 	return maxVal, nil
 }
 
+// CredibleInterval computes the lower and upper bounds of a credible interval of specified length
+func (p *Pmf) CredibleInterval(l float64) (float64, float64, error) {
+	return CredibleInterval(p, l)
+}
+
 // MakeCdf transforms a Pmf to a Cdf
 func (p *Pmf) MakeCdf() (*Cdf, error) {
 	c, err := NewCdf(p.prob)

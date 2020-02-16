@@ -55,6 +55,11 @@ func (c *Cdf) Percentile(p float64) (float64, error) {
 	return c.idxToVal[i], nil
 }
 
+// CredibleInterval computes the lower and upper bounds of a credible interval of specified length
+func (c *Cdf) CredibleInterval(l float64) (float64, float64, error) {
+	return CredibleInterval(c, l)
+}
+
 func sortKeys(p map[float64]float64) []float64 {
 	keys := make([]float64, 0, len(p))
 	for elem := range p {

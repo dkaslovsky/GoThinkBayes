@@ -5,9 +5,8 @@ import (
 	"math"
 )
 
-// TODO: consider noninteger bounds (floating point precision problem for keys underlying map...)
-
 // Bound contains the bounds of a distribution
+// TODO: consider noninteger bounds (floating point precision problem for keys underlying map...)
 type Bound struct {
 	Low  int
 	High int
@@ -62,39 +61,6 @@ func PowerLaw(b *Bound, alpha float64) (elems []*PmfElement) {
 	return elems
 }
 
-type percentileGetter interface {
-	Percentile(float64) (float64, error)
-}
-
-// CredibleInterval computes the credible interval of specified length
-func CredibleInterval(p percentileGetter, l float64) (lower float64, upper float64, err error) {
-	if l <= 0 || l > 100 {
-		return lower, upper, fmt.Errorf("cannot compute CI of length [%f]", l)
-	}
-
-	lowerP, upperP := getCredibleIntervalPercentiles(l)
-
-	lower, err = p.Percentile(lowerP)
-	if err != nil {
-		return lower, upper, fmt.Errorf(
-			"error computing credible interval of length [%f]: %v", l, err,
-		)
-	}
-	upper, err = p.Percentile(upperP)
-	if err != nil {
-		return lower, upper, fmt.Errorf(
-			"error computing credible interval of length [%f]: %v", l, err,
-		)
-	}
-	return lower, upper, nil
-}
-
-func getCredibleIntervalPercentiles(l float64) (lower float64, upper float64) {
-	lowerP := (100.0 - l) / 2.0 / 100
-	upperP := 1.0 - lowerP
-	return lowerP, upperP
-}
-
 // Beta is a Beta distribution
 type Beta struct {
 	alpha float64
@@ -140,4 +106,37 @@ func (b *Beta) MakePmf(nPoints int) *Pmf {
 		p.Set(NewPmfElement(val, b.EvalPdf(val)))
 	}
 	return p
+}
+
+type percentileGetter interface {
+	Percentile(float64) (float64, error)
+}
+
+// CredibleInterval computes the credible interval of specified length
+func CredibleInterval(p percentileGetter, l float64) (lower float64, upper float64, err error) {
+	if l <= 0 || l > 100 {
+		return lower, upper, fmt.Errorf("cannot compute CI of length [%f]", l)
+	}
+
+	lowerP, upperP := getCredibleIntervalPercentiles(l)
+
+	lower, err = p.Percentile(lowerP)
+	if err != nil {
+		return lower, upper, fmt.Errorf(
+			"error computing credible interval of length [%f]: %v", l, err,
+		)
+	}
+	upper, err = p.Percentile(upperP)
+	if err != nil {
+		return lower, upper, fmt.Errorf(
+			"error computing credible interval of length [%f]: %v", l, err,
+		)
+	}
+	return lower, upper, nil
+}
+
+func getCredibleIntervalPercentiles(l float64) (lower float64, upper float64) {
+	lowerP := (100.0 - l) / 2.0 / 100
+	upperP := 1.0 - lowerP
+	return lowerP, upperP
 }

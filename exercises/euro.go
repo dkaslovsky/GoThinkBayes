@@ -90,7 +90,7 @@ func report(s *prob.Suite) {
 	fmt.Printf("Posterior median: %0.2f\n", median)
 
 	ci := 90.0
-	lower, upper, err := prob.CredibleInterval(s, ci)
+	lower, upper, err := s.CredibleInterval(ci)
 	if err != nil {
 		fmt.Printf("Unable to compute %0.2f%%-CI due to error [%v]", ci, err)
 		return
