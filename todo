@@ -1,6 +1,7 @@
-pkg
+reorg distributions
 tests: NewCDF, distributions?
 plots
+pkg
 cli / flags
 logging vs printing / todos
 "observation" -> "data"

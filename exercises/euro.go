@@ -120,4 +120,10 @@ func Euro() {
 	runEuroMultiObservation(uniformPrior, ob)
 	fmt.Println("Triangle Prior (multiObservation):")
 	runEuroMultiObservation(trianglePrior, ob)
+
+	// run Euro problem using a (continuous) Beta prior
+	fmt.Println("Beta distribuion:")
+	b, _ := prob.NewBeta(1, 1) // ignore error since we are passing positive parameters
+	b.Update(float64(nHeads), float64(nTails))
+	fmt.Printf("Posterior mean: %0.2f\n", b.Mean())
 }

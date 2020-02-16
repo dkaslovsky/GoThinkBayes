@@ -94,3 +94,50 @@ func getCredibleIntervalPercentiles(l float64) (lower float64, upper float64) {
 	upperP := 1.0 - lowerP
 	return lowerP, upperP
 }
+
+// Beta is a Beta distribution
+type Beta struct {
+	alpha float64
+	beta  float64
+}
+
+// NewBeta creates a new Beta
+func NewBeta(alpha float64, beta float64) (b *Beta, err error) {
+	if alpha <= 0 || beta <= 0 {
+		return b, fmt.Errorf("cannot initialize Beta distribution with non-positive parameter(s)")
+	}
+	b = &Beta{
+		alpha: alpha,
+		beta:  beta,
+	}
+	return b, nil
+}
+
+// Update updates the parameters of a Beta distribution
+func (b *Beta) Update(nHeads float64, nTails float64) {
+	b.alpha += nHeads
+	b.beta += nTails
+}
+
+// Mean computes the mean of a Beta distribution
+func (b *Beta) Mean() float64 {
+	return b.alpha / (b.alpha + b.beta)
+}
+
+// EvalPdf computes the probability associated with a value for a Beta distribution
+func (b *Beta) EvalPdf(x float64) float64 {
+	return math.Pow(x, b.alpha-1) * math.Pow(1-x, b.beta-1)
+}
+
+// MakePmf returns a Pmf representing a discretized Beta distribution
+func (b *Beta) MakePmf(nPoints int) *Pmf {
+	p := NewPmf()
+	denom := float64(nPoints - 1)
+
+	var i float64
+	for i = 0; i <= denom; i++ {
+		val := i / denom
+		p.Set(NewPmfElement(val, b.EvalPdf(val)))
+	}
+	return p
+}
