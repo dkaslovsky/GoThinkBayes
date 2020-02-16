@@ -2,8 +2,6 @@ package prob
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
 )
 
 // PmfElement is a discrete element in a NumericPmf
@@ -140,48 +138,4 @@ func (p *Pmf) MaximumLikelihood() (maxVal float64, err error) {
 func (p *Pmf) MakeCdf() (*Cdf, error) {
 	c, err := NewCdf(p.prob)
 	return c, err
-}
-
-// SuiteObservation is the interface that must be satisfied to update probabilities
-type SuiteObservation interface {
-	GetLikelihood(float64) float64
-}
-
-// Suite is a suite of hypotheses with associated probabilities (a Pmf)
-type Suite struct {
-	*Pmf
-}
-
-// NewSuite creates a new Suite
-func NewSuite(hypos ...*PmfElement) *Suite {
-	s := &Suite{NewPmf()}
-	for _, hypo := range hypos {
-		s.Set(hypo)
-	}
-	s.Normalize()
-	return s
-}
-
-// Update updates the probabilities based on an observation
-func (s *Suite) Update(ob SuiteObservation) {
-	for hypoName := range s.prob {
-		like := ob.GetLikelihood(hypoName)
-		s.Mult(hypoName, like)
-	}
-	s.Normalize()
-}
-
-// UpdateSet updates the probabilities based on multiple observations
-func (s *Suite) UpdateSet(obs []SuiteObservation) {
-	// iterate elements of obs in random order for numerical stability: avoids long runs
-	// of one observation that push the probability of the others to values very close to zero
-	rand.Seed(time.Now().UnixNano())
-	for _, i := range rand.Perm(len(obs)) {
-		ob := obs[i]
-		for hypoName := range s.prob {
-			like := ob.GetLikelihood(hypoName)
-			s.Mult(hypoName, like)
-		}
-	}
-	s.Normalize()
 }
